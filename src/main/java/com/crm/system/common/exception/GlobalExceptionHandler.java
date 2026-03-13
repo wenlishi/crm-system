@@ -21,7 +21,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<Void> handleException(Exception e) {
         log.error("系统异常：", e);
-        return Result.error("系统繁忙，请稍后再试");
+        log.error("异常类型：{}", e.getClass().getName());
+        log.error("异常消息：{}", e.getMessage());
+        if (e.getCause() != null) {
+            log.error("根本原因：{}", e.getCause().getMessage());
+        }
+        return Result.error("系统繁忙，请稍后再试：" + e.getMessage());
     }
 
     /**
