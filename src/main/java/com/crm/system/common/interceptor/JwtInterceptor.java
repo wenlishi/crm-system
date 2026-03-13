@@ -3,8 +3,8 @@ package com.crm.system.common.interceptor;
 import com.crm.system.common.utils.JwtUtil;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * JWT 拦截器
