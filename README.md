@@ -58,7 +58,7 @@
 
 **1. 克隆项目**
 ```bash
-git clone https://github.com/YOUR_USERNAME/crm-system.git
+git clone https://github.com/wenlishi/crm-system.git
 cd crm-system
 ```
 
@@ -290,9 +290,8 @@ A: 本项目采用 MIT 协议，可以免费用于学习和商用。
 
 ## 👨‍💻 作者
 
-**Your Name**
-- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
-- Email: your.email@example.com
+**wenlishi**
+- GitHub: [@wenlishi](https://github.com/wenlishi)
 
 ---
 
