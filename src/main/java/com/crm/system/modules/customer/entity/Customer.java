@@ -2,6 +2,7 @@ package com.crm.system.modules.customer.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
  * @since 2026-03-14
  */
 @Data
+@ToString(exclude = {"createTime", "updateTime"})
 @TableName("crm_customer")
 public class Customer implements Serializable {
 

@@ -38,7 +38,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         if (customer.getStatus() == null) {
             customer.setStatus(1);
         }
-        return this.save(customer);
+        return super.save(customer);
     }
 
     @Override
