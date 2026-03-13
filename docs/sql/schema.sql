@@ -55,6 +55,20 @@ CREATE TABLE `sys_user_role` (
   PRIMARY KEY (`user_id`, `role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
 
+-- 数据字典表
+CREATE TABLE `sys_dict` (
+  `dict_id` BIGINT NOT NULL COMMENT '字典 ID',
+  `dict_type` VARCHAR(50) NOT NULL COMMENT '字典类型',
+  `dict_label` VARCHAR(100) NOT NULL COMMENT '字典标签',
+  `dict_value` VARCHAR(100) NOT NULL COMMENT '字典值',
+  `sort_order` INT DEFAULT 0 COMMENT '排序',
+  `status` TINYINT DEFAULT 1 COMMENT '状态',
+  `remark` VARCHAR(200) DEFAULT NULL COMMENT '备注',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`dict_id`),
+  KEY `idx_dict_type` (`dict_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据字典表';
+
 -- ============================================
 -- 2. 客户管理模块
 -- ============================================

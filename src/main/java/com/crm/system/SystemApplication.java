@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2026-03-14
  */
 @SpringBootApplication
-@MapperScan("com.crm.system.mapper")
+@MapperScan("com.crm.system.**.mapper")
 public class SystemApplication {
 
     public static void main(String[] args) {
