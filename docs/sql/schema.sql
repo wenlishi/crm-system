@@ -39,6 +39,7 @@ CREATE TABLE `sys_role` (
   `role_id` BIGINT NOT NULL COMMENT '角色 ID',
   `role_name` VARCHAR(50) NOT NULL COMMENT '角色名称',
   `role_code` VARCHAR(50) NOT NULL COMMENT '角色编码',
+  `data_scope` TINYINT DEFAULT 2 COMMENT '数据权限范围（1 全部 2 本部门及以下 3 本部门 4 仅本人）',
   `description` VARCHAR(200) DEFAULT NULL COMMENT '描述',
   `status` TINYINT DEFAULT 1 COMMENT '状态（0 禁用 1 正常）',
   `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',

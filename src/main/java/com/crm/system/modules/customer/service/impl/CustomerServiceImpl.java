@@ -1,19 +1,21 @@
 package com.crm.system.modules.customer.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.crm.system.common.cache.RedisCache;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.crm.system.common.annotation.DataPermission;
+import com.crm.system.common.annotation.DataType;
 import com.crm.system.modules.customer.entity.Customer;
 import com.crm.system.modules.customer.mapper.CustomerMapper;
 import com.crm.system.modules.customer.service.CustomerService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
- * 客户 Service 实现类
+ * 客户服务实现类
  * 
  * @author wenlishi
  * @since 2026-03-14
@@ -21,100 +23,41 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> implements CustomerService {
 
-    @Autowired
-    private CustomerMapper customerMapper;
-
-    @Autowired
-    private RedisCache redisCache;
-
-    private static final String CUSTOMER_CACHE_KEY = "customer:";
-    private static final String CUSTOMER_LIST_CACHE_KEY = "customer:list";
-
     @Override
+    @DataPermission(value = DataType.CUSTOMER, field = "owner_id")
+    @Cacheable(value = "customer:list", key = "'all'")
     public List<Customer> listAll() {
-        // 1. 先查缓存
-        @SuppressWarnings("unchecked")
-        List<Customer> cachedList = redisCache.get(CUSTOMER_LIST_CACHE_KEY, List.class);
-        if (cachedList != null) {
-            return cachedList;
-        }
-
-        // 2. 缓存未命中，查数据库
-        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Customer::getStatus, 1)
-               .orderByDesc(Customer::getCreateTime);
-        List<Customer> list = this.list(wrapper);
-
-        // 3. 写入缓存（30 分钟）
-        if (list != null && !list.isEmpty()) {
-            redisCache.set(CUSTOMER_LIST_CACHE_KEY, list, 30, TimeUnit.MINUTES);
-        }
-
-        return list;
+        return list();
     }
 
     @Override
-    public Customer getById(Long customerId) {
-        String key = CUSTOMER_CACHE_KEY + customerId;
-        
-        // 1. 先查缓存
-        Customer cached = redisCache.get(key, Customer.class);
-        if (cached != null) {
-            return cached;
-        }
-
-        // 2. 缓存未命中，查数据库
-        Customer customer = super.getById(customerId);
-
-        // 3. 写入缓存（30 分钟）
-        if (customer != null) {
-            redisCache.set(key, customer, 30, TimeUnit.MINUTES);
-        }
-
-        return customer;
+    @DataPermission(value = DataType.CUSTOMER, field = "owner_id")
+    @Cacheable(value = "customer:page", key = "#page.current + ':' + #page.size")
+    public Page<Customer> page(Page<Customer> page) {
+        return super.page(page);
     }
 
     @Override
+    @Cacheable(value = "customer:id", key = "#id")
+    public Customer getById(Long id) {
+        return super.getById(id);
+    }
+
+    @Override
+    @CacheEvict(value = "customer:*", allEntries = true)
     public boolean save(Customer customer) {
-        // 设置默认状态为有效
-        if (customer.getStatus() == null) {
-            customer.setStatus(1);
-        }
-        boolean success = super.save(customer);
-        
-        // 清除缓存
-        if (success) {
-            redisCache.delete(CUSTOMER_LIST_CACHE_KEY);
-        }
-        
-        return success;
+        return super.save(customer);
     }
 
     @Override
+    @CacheEvict(value = "customer:*", allEntries = true)
     public boolean update(Customer customer) {
-        boolean success = super.updateById(customer);
-        
-        // 清除缓存
-        if (success) {
-            String key = CUSTOMER_CACHE_KEY + customer.getCustomerId();
-            redisCache.delete(key);
-            redisCache.delete(CUSTOMER_LIST_CACHE_KEY);
-        }
-        
-        return success;
+        return super.updateById(customer);
     }
 
     @Override
-    public boolean delete(Long customerId) {
-        boolean success = super.removeById(customerId);
-        
-        // 清除缓存
-        if (success) {
-            String key = CUSTOMER_CACHE_KEY + customerId;
-            redisCache.delete(key);
-            redisCache.delete(CUSTOMER_LIST_CACHE_KEY);
-        }
-        
-        return success;
+    @CacheEvict(value = "customer:*", allEntries = true)
+    public boolean delete(Long id) {
+        return super.removeById(id);
     }
 }
