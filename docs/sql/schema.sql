@@ -267,6 +267,31 @@ CREATE TABLE `crm_customer_pool` (
   KEY `idx_drop_time` (`drop_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公海池表';
 
+-- 文件管理表
+CREATE TABLE `sys_file` (
+  `file_id` BIGINT NOT NULL COMMENT '文件 ID',
+  `file_name` VARCHAR(100) NOT NULL COMMENT '文件名称',
+  `original_name` VARCHAR(200) DEFAULT NULL COMMENT '原始文件名',
+  `file_path` VARCHAR(500) NOT NULL COMMENT '文件路径',
+  `file_url` VARCHAR(500) NOT NULL COMMENT '文件 URL',
+  `file_type` VARCHAR(20) DEFAULT NULL COMMENT '文件类型（image/pdf/doc/xls 等）',
+  `file_size` BIGINT DEFAULT NULL COMMENT '文件大小（字节）',
+  `mime_type` VARCHAR(100) DEFAULT NULL COMMENT 'MIME 类型',
+  `biz_type` VARCHAR(50) DEFAULT NULL COMMENT '关联业务类型',
+  `biz_id` BIGINT DEFAULT NULL COMMENT '关联业务 ID',
+  `upload_user_id` BIGINT DEFAULT NULL COMMENT '上传用户 ID',
+  `upload_user_name` VARCHAR(50) DEFAULT NULL COMMENT '上传用户名',
+  `description` VARCHAR(500) DEFAULT NULL COMMENT '文件描述',
+  `status` TINYINT DEFAULT 1 COMMENT '状态（0 禁用 1 正常）',
+  `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`file_id`),
+  KEY `idx_biz` (`biz_type`, `biz_id`),
+  KEY `idx_upload_user` (`upload_user_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件管理表';
+
 -- ============================================
 -- 初始化数据
 -- ============================================
