@@ -219,6 +219,34 @@ CREATE TABLE `sys_role_permission` (
   KEY `idx_permission_id` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
 
+-- 操作日志表
+CREATE TABLE `sys_operation_log` (
+  `log_id` BIGINT NOT NULL COMMENT '日志 ID',
+  `user_id` BIGINT DEFAULT NULL COMMENT '用户 ID',
+  `username` VARCHAR(50) DEFAULT NULL COMMENT '用户名',
+  `module` VARCHAR(50) DEFAULT NULL COMMENT '操作模块',
+  `type` VARCHAR(50) DEFAULT NULL COMMENT '操作类型',
+  `description` VARCHAR(200) DEFAULT NULL COMMENT '操作描述',
+  `method` VARCHAR(10) DEFAULT NULL COMMENT '请求方法',
+  `url` VARCHAR(200) DEFAULT NULL COMMENT '请求 URL',
+  `params` TEXT COMMENT '请求参数',
+  `result` VARCHAR(500) DEFAULT NULL COMMENT '响应结果',
+  `duration` BIGINT DEFAULT NULL COMMENT '执行时长（毫秒）',
+  `ip` VARCHAR(50) DEFAULT NULL COMMENT 'IP 地址',
+  `location` VARCHAR(100) DEFAULT NULL COMMENT '操作地点',
+  `browser` VARCHAR(50) DEFAULT NULL COMMENT '浏览器',
+  `os` VARCHAR(50) DEFAULT NULL COMMENT '操作系统',
+  `status` TINYINT DEFAULT 1 COMMENT '操作状态（0 失败 1 成功）',
+  `error_msg` TEXT COMMENT '错误信息',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`log_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_module` (`module`),
+  KEY `idx_type` (`type`),
+  KEY `idx_create_time` (`create_time`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
+
 -- ============================================
 -- 初始化数据
 -- ============================================
