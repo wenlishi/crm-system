@@ -248,6 +248,25 @@ CREATE TABLE `sys_operation_log` (
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
 
+-- 公海池表
+CREATE TABLE `crm_customer_pool` (
+  `pool_id` BIGINT NOT NULL COMMENT '公海池 ID',
+  `customer_id` BIGINT NOT NULL COMMENT '客户 ID',
+  `customer_name` VARCHAR(100) NOT NULL COMMENT '客户名称',
+  `previous_owner_id` BIGINT DEFAULT NULL COMMENT '原负责人 ID',
+  `previous_owner_name` VARCHAR(50) DEFAULT NULL COMMENT '原负责人姓名',
+  `drop_reason` TINYINT DEFAULT 1 COMMENT '掉入公海原因（1 超期未跟进 2 主动释放 3 离职交接 4 其他）',
+  `drop_time` DATETIME DEFAULT NULL COMMENT '掉入公海时间',
+  `status` TINYINT DEFAULT 0 COMMENT '状态（0 在池中 1 已领取）',
+  `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`pool_id`),
+  KEY `idx_customer_id` (`customer_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_drop_time` (`drop_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公海池表';
+
 -- ============================================
 -- 初始化数据
 -- ============================================
