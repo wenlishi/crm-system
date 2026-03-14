@@ -3,6 +3,7 @@ package com.crm.system;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * CRM 系统启动类
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @MapperScan("com.crm.system.**.mapper")
+@EnableScheduling // 启用定时任务
 public class SystemApplication {
 
     public static void main(String[] args) {
