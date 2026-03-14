@@ -37,6 +37,11 @@ public class Role implements Serializable {
     private String roleCode;
 
     /**
+     * 数据权限范围（1 全部 2 本部门及以下 3 本部门 4 仅本人）
+     */
+    private Integer dataScope;
+
+    /**
      * 描述
      */
     private String description;
