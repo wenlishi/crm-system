@@ -2,6 +2,7 @@ package com.crm.system.modules.customer.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crm.system.common.Result;
+import com.crm.system.common.annotation.RequirePermission;
 import com.crm.system.modules.customer.entity.Customer;
 import com.crm.system.modules.customer.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import java.util.List;
  * @since 2026-03-14
  */
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/api/customers")
 public class CustomerController {
 
     @Autowired
@@ -26,6 +27,7 @@ public class CustomerController {
      * 查询客户列表
      */
     @GetMapping
+    @RequirePermission("customer:query")
     public Result<List<Customer>> list() {
         List<Customer> list = customerService.listAll();
         return Result.success(list);
@@ -35,6 +37,7 @@ public class CustomerController {
      * 分页查询客户列表
      */
     @GetMapping("/page")
+    @RequirePermission("customer:query")
     public Result<Page<Customer>> page(
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size) {
@@ -47,6 +50,7 @@ public class CustomerController {
      * 根据 ID 查询客户
      */
     @GetMapping("/{id}")
+    @RequirePermission("customer:query")
     public Result<Customer> getById(@PathVariable Long id) {
         Customer customer = customerService.getById(id);
         if (customer == null) {
@@ -59,6 +63,7 @@ public class CustomerController {
      * 新增客户
      */
     @PostMapping
+    @RequirePermission("customer:add")
     public Result<Boolean> save(@RequestBody Customer customer) {
         boolean success = customerService.save(customer);
         return success ? Result.success("添加成功", true) : Result.error("添加失败");
@@ -68,6 +73,7 @@ public class CustomerController {
      * 更新客户
      */
     @PutMapping
+    @RequirePermission("customer:edit")
     public Result<Boolean> update(@RequestBody Customer customer) {
         boolean success = customerService.update(customer);
         return success ? Result.success("更新成功", true) : Result.error("更新失败");
@@ -77,6 +83,7 @@ public class CustomerController {
      * 删除客户
      */
     @DeleteMapping("/{id}")
+    @RequirePermission("customer:delete")
     public Result<Boolean> delete(@PathVariable Long id) {
         boolean success = customerService.delete(id);
         return success ? Result.success("删除成功", true) : Result.error("删除失败");
