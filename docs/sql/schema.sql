@@ -187,6 +187,39 @@ CREATE TABLE `crm_contract` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='合同表';
 
 -- ============================================
+-- 6. 权限管理模块
+-- ============================================
+
+-- 权限表
+CREATE TABLE `sys_permission` (
+  `permission_id` BIGINT NOT NULL COMMENT '权限 ID',
+  `permission_name` VARCHAR(100) NOT NULL COMMENT '权限名称',
+  `permission_code` VARCHAR(100) NOT NULL COMMENT '权限编码（如：customer:add, customer:edit）',
+  `type` TINYINT DEFAULT 1 COMMENT '权限类型（1 菜单 2 按钮 3 接口）',
+  `parent_id` BIGINT DEFAULT 0 COMMENT '父权限 ID',
+  `path` VARCHAR(200) DEFAULT NULL COMMENT '路径',
+  `icon` VARCHAR(50) DEFAULT NULL COMMENT '图标',
+  `sort_order` INT DEFAULT 0 COMMENT '排序',
+  `description` VARCHAR(200) DEFAULT NULL COMMENT '描述',
+  `status` TINYINT DEFAULT 1 COMMENT '状态（0 禁用 1 正常）',
+  `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`permission_id`),
+  KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_type` (`type`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
+
+-- 角色权限关联表
+CREATE TABLE `sys_role_permission` (
+  `role_id` BIGINT NOT NULL COMMENT '角色 ID',
+  `permission_id` BIGINT NOT NULL COMMENT '权限 ID',
+  PRIMARY KEY (`role_id`, `permission_id`),
+  KEY `idx_permission_id` (`permission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
+
+-- ============================================
 -- 初始化数据
 -- ============================================
 
@@ -219,6 +252,87 @@ INSERT INTO `sys_dict` (`dict_id`, `dict_type`, `dict_label`, `dict_value`, `sor
 (12, 'opportunity_stage', '方案报价', '3', 3),
 (13, 'opportunity_stage', '谈判', '4', 4),
 (14, 'opportunity_stage', '成交', '5', 5);
+
+-- 插入权限数据
+-- 系统管理菜单
+INSERT INTO `sys_permission` (`permission_id`, `permission_name`, `permission_code`, `type`, `parent_id`, `path`, `icon`, `sort_order`, `status`) VALUES
+(1, '系统管理', 'system', 1, 0, '/system', 'setting', 100, 1),
+(2, '用户管理', 'system:user', 1, 1, '/system/user', 'user', 101, 1),
+(3, '用户查询', 'system:user:query', 3, 2, NULL, NULL, 102, 1),
+(4, '用户新增', 'system:user:add', 3, 2, NULL, NULL, 103, 1),
+(5, '用户修改', 'system:user:edit', 3, 2, NULL, NULL, 104, 1),
+(6, '用户删除', 'system:user:delete', 3, 2, NULL, NULL, 105, 1),
+(7, '角色管理', 'system:role', 1, 1, '/system/role', 'peoples', 106, 1),
+(8, '角色查询', 'system:role:query', 3, 7, NULL, NULL, 107, 1),
+(9, '角色新增', 'system:role:add', 3, 7, NULL, NULL, 108, 1),
+(10, '角色修改', 'system:role:edit', 3, 7, NULL, NULL, 109, 1),
+(11, '角色删除', 'system:role:delete', 3, 7, NULL, NULL, 110, 1),
+(12, '权限管理', 'system:permission', 1, 1, '/system/permission', 'lock', 111, 1),
+(13, '权限查询', 'system:permission:query', 3, 12, NULL, NULL, 112, 1),
+(14, '权限新增', 'system:permission:add', 3, 12, NULL, NULL, 113, 1),
+(15, '权限修改', 'system:permission:edit', 3, 12, NULL, NULL, 114, 1),
+(16, '权限删除', 'system:permission:delete', 3, 12, NULL, NULL, 115, 1);
+
+-- 客户管理菜单
+INSERT INTO `sys_permission` (`permission_id`, `permission_name`, `permission_code`, `type`, `parent_id`, `path`, `icon`, `sort_order`, `status`) VALUES
+(20, '客户管理', 'customer', 1, 0, '/customer', 'contact', 1, 1),
+(21, '客户列表', 'customer:list', 1, 20, '/customer/list', 'list', 2, 1),
+(22, '客户查询', 'customer:query', 3, 21, NULL, NULL, 3, 1),
+(23, '客户新增', 'customer:add', 3, 21, NULL, NULL, 4, 1),
+(24, '客户修改', 'customer:edit', 3, 21, NULL, NULL, 5, 1),
+(25, '客户删除', 'customer:delete', 3, 21, NULL, NULL, 6, 1),
+(26, '跟进记录', 'customer:follow', 1, 20, '/customer/follow', 'document', 7, 1),
+(27, '跟进查询', 'customer:follow:query', 3, 26, NULL, NULL, 8, 1),
+(28, '跟进新增', 'customer:follow:add', 3, 26, NULL, NULL, 9, 1),
+(29, '跟进修改', 'customer:follow:edit', 3, 26, NULL, NULL, 10, 1),
+(30, '跟进删除', 'customer:follow:delete', 3, 26, NULL, NULL, 11, 1);
+
+-- 商机管理菜单
+INSERT INTO `sys_permission` (`permission_id`, `permission_name`, `permission_code`, `type`, `parent_id`, `path`, `icon`, `sort_order`, `status`) VALUES
+(30, '商机管理', 'opportunity', 1, 0, '/opportunity', 'chart', 2, 1),
+(31, '商机列表', 'opportunity:list', 1, 30, '/opportunity/list', 'list', 3, 1),
+(32, '商机查询', 'opportunity:query', 3, 31, NULL, NULL, 4, 1),
+(33, '商机新增', 'opportunity:add', 3, 31, NULL, NULL, 5, 1),
+(34, '商机修改', 'opportunity:edit', 3, 31, NULL, NULL, 6, 1),
+(35, '商机删除', 'opportunity:delete', 3, 31, NULL, NULL, 7, 1),
+(36, '销售漏斗', 'opportunity:funnel', 2, 30, '/opportunity/funnel', 'funnel', 8, 1);
+
+-- 合同管理菜单
+INSERT INTO `sys_permission` (`permission_id`, `permission_name`, `permission_code`, `type`, `parent_id`, `path`, `icon`, `sort_order`, `status`) VALUES
+(40, '合同管理', 'contract', 1, 0, '/contract', 'file', 3, 1),
+(41, '合同列表', 'contract:list', 1, 40, '/contract/list', 'list', 4, 1),
+(42, '合同查询', 'contract:query', 3, 41, NULL, NULL, 5, 1),
+(43, '合同新增', 'contract:add', 3, 41, NULL, NULL, 6, 1),
+(44, '合同修改', 'contract:edit', 3, 41, NULL, NULL, 7, 1),
+(45, '合同删除', 'contract:delete', 3, 41, NULL, NULL, 8, 1),
+(46, '合同统计', 'contract:stats', 2, 40, '/contract/stats', 'chart', 9, 1);
+
+-- 统计报表菜单
+INSERT INTO `sys_permission` (`permission_id`, `permission_name`, `permission_code`, `type`, `parent_id`, `path`, `icon`, `sort_order`, `status`) VALUES
+(50, '统计报表', 'statistics', 1, 0, '/statistics', 'dashboard', 4, 1),
+(51, '数据统计', 'statistics:dashboard', 2, 50, '/statistics/dashboard', 'dashboard', 5, 1),
+(52, '客户分析', 'statistics:customer', 2, 50, '/statistics/customer', 'chart', 6, 1),
+(53, '销售分析', 'statistics:sales', 2, 50, '/statistics/sales', 'line', 7, 1);
+
+-- 分配超级管理员所有权限
+INSERT INTO `sys_role_permission` (`role_id`, `permission_id`)
+SELECT 1, permission_id FROM sys_permission;
+
+-- 分配销售经理部分权限
+INSERT INTO `sys_role_permission` (`role_id`, `permission_id`) VALUES
+(2, 20), (2, 21), (2, 22), (2, 23), (2, 24), (2, 25),
+(2, 26), (2, 27), (2, 28), (2, 29), (2, 30),
+(2, 31), (2, 32), (2, 33), (2, 34), (2, 35), (2, 36),
+(2, 40), (2, 41), (2, 42), (2, 43), (2, 44), (2, 45), (2, 46),
+(2, 50), (2, 51), (2, 52), (2, 53);
+
+-- 分配销售专员基础权限
+INSERT INTO `sys_role_permission` (`role_id`, `permission_id`) VALUES
+(3, 20), (3, 21), (3, 22), (3, 23), (3, 24),
+(3, 26), (3, 27), (3, 28), (3, 29),
+(3, 30), (3, 31), (3, 32), (3, 33), (3, 34),
+(3, 40), (3, 41), (3, 42), (3, 43), (3, 44),
+(3, 50), (3, 51);
 
 -- ============================================
 -- 结束
