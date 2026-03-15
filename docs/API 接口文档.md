@@ -1,7 +1,7 @@
 # 📡 API 接口文档
 
 **更新时间**：2026-03-15  
-**版本**：v1.7.0
+**版本**：v1.8.0
 
 ---
 
@@ -10,7 +10,8 @@
 | 模块 | 接口数 | 状态 |
 |------|--------|------|
 | 认证模块 | 3 | ✅ |
-| **用户管理** | **11** | **✅ 🆕** |
+| **用户管理** | **11** | **✅** |
+| **数据字典** | **8** | **✅ 🆕** |
 | 客户模块 | 6 | ✅ |
 | 跟进记录 | 6 | ✅ |
 | 统计模块 | 3 | ✅ |
@@ -18,7 +19,7 @@
 | 合同管理 | 8 | ✅ |
 | 角色管理 | 9 | ✅ |
 | 权限管理 | 9 | ✅ |
-| **总计** | **62** | **✅** |
+| **总计** | **70** | **✅** |
 
 ---
 
@@ -216,6 +217,161 @@
   "data": [1, 2]
 }
 ```
+
+---
+
+## 📚 数据字典模块 🆕
+
+### 1. 分页查询字典
+
+**接口**：`GET /api/dict/page`
+
+**参数**：
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| dictType | String | 否 | 字典类型（如：customer_level） |
+| dictLabel | String | 否 | 字典标签（模糊查询） |
+| status | Integer | 否 | 状态（0 禁用 1 正常） |
+| current | Integer | 否 | 当前页码（默认 1） |
+| size | Integer | 否 | 每页数量（默认 10） |
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "records": [
+      {
+        "dictId": 1,
+        "dictType": "customer_level",
+        "dictLabel": "普通",
+        "dictValue": "1",
+        "sortOrder": 1,
+        "status": 1,
+        "remark": "客户等级"
+      }
+    ],
+    "total": 3,
+    "size": 10,
+    "current": 1,
+    "pages": 1
+  }
+}
+```
+
+---
+
+### 2. 根据字典类型查询字典列表
+
+**接口**：`GET /api/dict/{dictType}`
+
+**示例**：
+```bash
+curl http://localhost:8080/api/dict/customer_level \
+  -H "Authorization: $TOKEN"
+```
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": [
+    {"dictId": 3, "dictType": "customer_level", "dictLabel": "普通", "dictValue": "1", "sortOrder": 1},
+    {"dictId": 4, "dictType": "customer_level", "dictLabel": "VIP", "dictValue": "2", "sortOrder": 2},
+    {"dictId": 5, "dictType": "customer_level", "dictLabel": "重要", "dictValue": "3", "sortOrder": 3}
+  ]
+}
+```
+
+**用途**：前端下拉框数据源
+
+---
+
+### 3. 获取所有字典类型
+
+**接口**：`GET /api/dict/types`
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": [
+    {"dictType": "customer_level", "remark": "客户等级"},
+    {"dictType": "customer_type", "remark": "客户类型"},
+    {"dictType": "follow_type", "remark": "跟进方式"}
+  ]
+}
+```
+
+---
+
+### 4. 根据字典类型和值查询标签
+
+**接口**：`GET /api/dict/label?dictType=customer_level&dictValue=1`
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": "普通"
+}
+```
+
+**用途**：将字典值转换为显示标签
+
+---
+
+### 5. 新增字典
+
+**接口**：`POST /api/dict`
+
+**请求**：
+```json
+{
+  "dictType": "customer_level",
+  "dictLabel": "超级 VIP",
+  "dictValue": "4",
+  "sortOrder": 4,
+  "status": 1,
+  "remark": "客户等级"
+}
+```
+
+---
+
+### 6. 修改字典
+
+**接口**：`PUT /api/dict`
+
+**请求**：
+```json
+{
+  "dictId": 3,
+  "dictType": "customer_level",
+  "dictLabel": "普通客户",
+  "dictValue": "1",
+  "sortOrder": 1,
+  "status": 1
+}
+```
+
+---
+
+### 7. 删除字典
+
+**接口**：`DELETE /api/dict/{id}`
+
+---
+
+### 8. 刷新字典缓存
+
+**接口**：`POST /api/dict/refresh`
+
+**用途**：修改字典数据后刷新 Redis 缓存
 
 ---
 

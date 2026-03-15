@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crm.system.modules.system.mapper.DictMapper">
+
+    <select id="selectByDictType" resultType="com.crm.system.modules.system.entity.Dict">
+        SELECT * FROM sys_dict 
+        WHERE dict_type = #{dictType}
+          AND status = 1
+        ORDER BY sort_order ASC
+    </select>
+
+</mapper>
