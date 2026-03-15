@@ -341,21 +341,41 @@ INSERT INTO `sys_role` (`role_id`, `role_name`, `role_code`, `description`) VALU
 INSERT INTO `sys_user_role` (`user_id`, `role_id`) VALUES (1, 1);
 
 -- 插入数据字典
-INSERT INTO `sys_dict` (`dict_id`, `dict_type`, `dict_label`, `dict_value`, `sort_order`) VALUES
-(1, 'customer_type', '个人', '1', 1),
-(2, 'customer_type', '企业', '2', 2),
-(3, 'customer_level', '普通', '1', 1),
-(4, 'customer_level', 'VIP', '2', 2),
-(5, 'customer_level', '重要', '3', 3),
-(6, 'follow_type', '电话', '1', 1),
-(7, 'follow_type', '微信', '2', 2),
-(8, 'follow_type', '邮件', '3', 3),
-(9, 'follow_type', '面谈', '4', 4),
-(10, 'opportunity_stage', '初步接触', '1', 1),
-(11, 'opportunity_stage', '需求确认', '2', 2),
-(12, 'opportunity_stage', '方案报价', '3', 3),
-(13, 'opportunity_stage', '谈判', '4', 4),
-(14, 'opportunity_stage', '成交', '5', 5);
+INSERT INTO `sys_dict` (`dict_id`, `dict_type`, `dict_label`, `dict_value`, `sort_order`, `status`, `remark`) VALUES
+(1, 'customer_type', '个人', '1', 1, 1, '客户类型'),
+(2, 'customer_type', '企业', '2', 2, 1, '客户类型'),
+(3, 'customer_level', '普通', '1', 1, 1, '客户等级'),
+(4, 'customer_level', 'VIP', '2', 2, 1, '客户等级'),
+(5, 'customer_level', '重要', '3', 3, 1, '客户等级'),
+(6, 'follow_type', '电话', '1', 1, 1, '跟进方式'),
+(7, 'follow_type', '微信', '2', 2, 1, '跟进方式'),
+(8, 'follow_type', '邮件', '3', 3, 1, '跟进方式'),
+(9, 'follow_type', '面谈', '4', 4, 1, '跟进方式'),
+(10, 'follow_type', '其他', '5', 5, 1, '跟进方式'),
+(11, 'opportunity_stage', '初步接触', '1', 1, 1, '商机阶段'),
+(12, 'opportunity_stage', '需求确认', '2', 2, 1, '商机阶段'),
+(13, 'opportunity_stage', '方案报价', '3', 3, 1, '商机阶段'),
+(14, 'opportunity_stage', '谈判', '4', 4, 1, '商机阶段'),
+(15, 'opportunity_stage', '成交', '5', 5, 1, '商机阶段'),
+(16, 'contract_status', '草稿', '1', 1, 1, '合同状态'),
+(17, 'contract_status', '待审核', '2', 2, 1, '合同状态'),
+(18, 'contract_status', '已审核', '3', 3, 1, '合同状态'),
+(19, 'contract_status', '执行中', '4', 4, 1, '合同状态'),
+(20, 'contract_status', '已完成', '5', 5, 1, '合同状态'),
+(21, 'contract_status', '已终止', '6', 6, 1, '合同状态'),
+(22, 'user_status', '禁用', '0', 1, 1, '用户状态'),
+(23, 'user_status', '正常', '1', 2, 1, '用户状态'),
+(24, 'role_status', '禁用', '0', 1, 1, '角色状态'),
+(25, 'role_status', '正常', '1', 2, 1, '角色状态'),
+(26, 'dept_status', '禁用', '0', 1, 1, '部门状态'),
+(27, 'dept_status', '正常', '1', 2, 1, '部门状态'),
+(28, 'yes_no', '否', '0', 1, 1, '是否'),
+(29, 'yes_no', '是', '1', 2, 1, '是否'),
+(30, 'customer_source', '线上广告', '1', 1, 1, '客户来源'),
+(31, 'customer_source', '客户推荐', '2', 2, 1, '客户来源'),
+(32, 'customer_source', '电话销售', '3', 3, 1, '客户来源'),
+(33, 'customer_source', '展会活动', '4', 4, 1, '客户来源'),
+(34, 'customer_source', '其他', '5', 5, 1, '客户来源');
 
 -- 插入权限数据
 -- 系统管理菜单
