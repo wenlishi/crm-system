@@ -97,6 +97,7 @@ mvn spring-boot:run
 
 **6. 访问系统**
 - 后端接口：http://localhost:8080/api
+- Swagger 文档：http://localhost:8080/api/swagger-ui.html 📄
 - 默认管理员账号：admin / admin123
 - 用户管理：http://localhost:8080/api/users
 
@@ -320,7 +321,8 @@ A: 本项目采用 MIT 协议，可以免费用于学习和商用。
 
 **⭐ 如果这个项目对你有帮助，请给个 Star 支持一下！**
 
-*Last Updated: 2026-03-15*  
-*API Version: v1.8.0*  
+*Last Updated: 2026-03-16*  
+*API Version: v1.9.0*  
 *Total APIs: 70*  
+*Swagger*: http://localhost:8080/api/swagger-ui.html 📄  
 *GitHub: https://github.com/wenlishi/crm-system*

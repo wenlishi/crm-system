@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crm.system.common.Result;
 import com.crm.system.modules.system.entity.Dict;
 import com.crm.system.modules.system.service.DictService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ import java.util.Map;
  * @author wenlishi
  * @since 2026-03-15
  */
+@Tag(name = "数据字典管理", description = "系统下拉选项配置")
 @RestController
 @RequestMapping("/dict")
 public class DictController {
@@ -23,9 +26,7 @@ public class DictController {
     @Autowired
     private DictService dictService;
 
-    /**
-     * 分页查询字典
-     */
+    @Operation(summary = "分页查询字典", description = "支持按类型、标签、状态筛选")
     @GetMapping("/page")
     public Result<Page<Dict>> page(
             @RequestParam(required = false) String dictType,
@@ -38,27 +39,21 @@ public class DictController {
         return Result.success(page);
     }
 
-    /**
-     * 根据字典类型查询字典列表
-     */
+    @Operation(summary = "根据类型查询字典", description = "前端下拉框数据源")
     @GetMapping("/{dictType}")
     public Result<List<Dict>> getByDictType(@PathVariable String dictType) {
         List<Dict> list = dictService.getByDictType(dictType);
         return Result.success(list);
     }
 
-    /**
-     * 获取所有字典类型
-     */
+    @Operation(summary = "获取所有字典类型", description = "返回所有字典类型及备注")
     @GetMapping("/types")
     public Result<List<Map<String, Object>>> getAllDictTypes() {
         List<Map<String, Object>> types = dictService.getAllDictTypes();
         return Result.success(types);
     }
 
-    /**
-     * 根据字典类型和值查询标签
-     */
+    @Operation(summary = "字典值转标签", description = "将字典值转换为显示文本")
     @GetMapping("/label")
     public Result<String> getDictLabel(
             @RequestParam String dictType,
