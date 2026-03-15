@@ -23,6 +23,7 @@
 - 👤 **系统管理** - 用户管理、角色权限、数据字典 ✅
 - 📈 **数据统计** - 销售报表、客户分析、数据可视化 ✅
 - 🔐 **权限管理** - RBAC 权限控制、菜单权限、按钮权限 ✅
+- 🆕 **用户管理** - 用户 CRUD、密码管理、角色分配 ✅
 
 ### 技术栈
 
@@ -96,6 +97,7 @@ mvn spring-boot:run
 **6. 访问系统**
 - 后端接口：http://localhost:8080/api
 - 默认管理员账号：admin / admin123
+- 用户管理：http://localhost:8080/api/users
 
 ---
 
@@ -240,6 +242,7 @@ public void sendEmail(FollowUp followUp) {
 | 2026-03-14 | 商机管理模块 | ✅ |
 | 2026-03-14 | 合同管理模块 | ✅ |
 | 2026-03-14 | 权限管理模块（RBAC） | ✅ |
+| 2026-03-15 | 用户管理模块 | ✅ 🆕 |
 | 待更新 | 前端开发、单元测试 | ⏳ |
 
 ---
@@ -315,7 +318,7 @@ A: 本项目采用 MIT 协议，可以免费用于学习和商用。
 
 **⭐ 如果这个项目对你有帮助，请给个 Star 支持一下！**
 
-*Last Updated: 2026-03-14*  
-*API Version: v1.6.0*  
-*Total APIs: 51*  
+*Last Updated: 2026-03-15*  
+*API Version: v1.7.0*  
+*Total APIs: 62*  
 *GitHub: https://github.com/wenlishi/crm-system*

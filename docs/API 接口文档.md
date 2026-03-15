@@ -1,7 +1,7 @@
 # 📡 API 接口文档
 
-**更新时间**：2026-03-14  
-**版本**：v1.4.0
+**更新时间**：2026-03-15  
+**版本**：v1.7.0
 
 ---
 
@@ -10,12 +10,212 @@
 | 模块 | 接口数 | 状态 |
 |------|--------|------|
 | 认证模块 | 3 | ✅ |
+| **用户管理** | **11** | **✅ 🆕** |
 | 客户模块 | 6 | ✅ |
 | 跟进记录 | 6 | ✅ |
 | 统计模块 | 3 | ✅ |
 | 商机管理 | 7 | ✅ |
 | 合同管理 | 8 | ✅ |
-| **总计** | **33** | **✅** |
+| 角色管理 | 9 | ✅ |
+| 权限管理 | 9 | ✅ |
+| **总计** | **62** | **✅** |
+
+---
+
+## 👤 用户管理模块 🆕
+
+### 1. 分页查询用户
+
+**接口**：`GET /api/users/page`
+
+**参数**：
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| username | String | 否 | 用户名（模糊查询） |
+| phone | String | 否 | 手机号（模糊查询） |
+| deptId | Long | 否 | 部门 ID |
+| status | Integer | 否 | 状态（0 禁用 1 正常） |
+| current | Integer | 否 | 当前页码（默认 1） |
+| size | Integer | 否 | 每页数量（默认 10） |
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "records": [
+      {
+        "userId": 1,
+        "username": "admin",
+        "email": "admin@example.com",
+        "phone": "13800138000",
+        "avatar": "https://example.com/avatar.png",
+        "deptId": 1,
+        "status": 1,
+        "createTime": "2026-03-14T10:00:00",
+        "updateTime": "2026-03-14T10:00:00"
+      }
+    ],
+    "total": 1,
+    "size": 10,
+    "current": 1,
+    "pages": 1
+  }
+}
+```
+
+---
+
+### 2. 查询用户详情
+
+**接口**：`GET /api/users/{id}`
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "userId": 1,
+    "username": "admin",
+    "email": "admin@example.com",
+    "phone": "13800138000",
+    "avatar": "https://example.com/avatar.png",
+    "deptId": 1,
+    "status": 1
+  }
+}
+```
+
+---
+
+### 3. 新增用户
+
+**接口**：`POST /api/users`
+
+**请求**：
+```json
+{
+  "username": "zhangsan",
+  "password": "123456",
+  "email": "zhangsan@example.com",
+  "phone": "13800138000",
+  "avatar": "https://example.com/avatar.png",
+  "deptId": 1,
+  "status": 1
+}
+```
+
+**字段约束**：
+- `username`: 4-20 位字母、数字或下划线
+- `password`: 6-20 位字母、数字或下划线
+- `email`: 标准邮箱格式
+- `phone`: 11 位手机号
+
+---
+
+### 4. 修改用户
+
+**接口**：`PUT /api/users`
+
+**请求**：
+```json
+{
+  "userId": 2,
+  "username": "zhangsan",
+  "email": "zhangsan@example.com",
+  "phone": "13800138000",
+  "avatar": "https://example.com/avatar.png",
+  "deptId": 1,
+  "status": 1
+}
+```
+
+---
+
+### 5. 删除用户
+
+**接口**：`DELETE /api/users/{id}`
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "删除成功",
+  "data": true
+}
+```
+
+---
+
+### 6. 批量删除用户
+
+**接口**：`DELETE /api/users?ids=1,2,3`
+
+**参数**：
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| ids | List<Long> | 是 | 用户 ID 列表 |
+
+---
+
+### 7. 更新用户状态
+
+**接口**：`PUT /api/users/{id}/status?status=0`
+
+**参数**：
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| status | Integer | 是 | 状态（0 禁用 1 正常） |
+
+**用途**：禁用/启用用户
+
+---
+
+### 8. 重置用户密码
+
+**接口**：`PUT /api/users/{id}/password/reset`
+
+**说明**：将用户密码重置为默认密码 `123456`
+
+---
+
+### 9. 修改自己的密码
+
+**接口**：`PUT /api/users/password?oldPassword=xxx&newPassword=xxx`
+
+**参数**：
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| oldPassword | String | 是 | 原密码 |
+| newPassword | String | 是 | 新密码 |
+
+---
+
+### 10. 为用户分配角色
+
+**接口**：`POST /api/users/{id}/roles?roleIds=1,2`
+
+**参数**：
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| roleIds | List<Long> | 是 | 角色 ID 列表 |
+
+---
+
+### 11. 查询用户的角色
+
+**接口**：`GET /api/users/{id}/roles`
+
+**响应**：
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": [1, 2]
+}
+```
 
 ---
 
