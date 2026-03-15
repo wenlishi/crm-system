@@ -6,17 +6,20 @@ import com.crm.system.modules.system.dto.LoginRequest;
 import com.crm.system.modules.system.dto.LoginResponse;
 import com.crm.system.modules.system.entity.User;
 import com.crm.system.modules.system.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
 /**
- * 用户 Controller
+ * 认证 Controller
  * 
  * @author wenlishi
  * @since 2026-03-14
  */
+@Tag(name = "认证管理", description = "用户登录、注册、信息查询")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -24,21 +27,16 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    /**
-     * 用户登录
-     */
+    @Operation(summary = "用户登录", description = "用户名密码登录，返回 JWT Token")
     @PostMapping("/login")
     public Result<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = userService.login(request.getUsername(), request.getPassword());
         return Result.success(response);
     }
 
-    /**
-     * 获取当前用户信息
-     */
+    @Operation(summary = "获取当前用户信息", description = "从 Token 中解析用户 ID，返回用户详细信息")
     @GetMapping("/info")
     public Result<User> getInfo() {
-        // 从 Token 中解析用户 ID
         Long userId = CurrentUserContext.getUserId();
         if (userId == null) {
             return Result.error("未登录");
@@ -49,17 +47,13 @@ public class AuthController {
             return Result.error("用户不存在");
         }
         
-        // 不返回密码
         user.setPassword(null);
         return Result.success(user);
     }
 
-    /**
-     * 用户注册
-     */
+    @Operation(summary = "用户注册", description = "注册新用户，密码自动 BCrypt 加密")
     @PostMapping("/register")
     public Result<Boolean> register(@Valid @RequestBody LoginRequest request) {
-        // 检查用户名是否已存在
         User existUser = userService.getByUsername(request.getUsername());
         if (existUser != null) {
             return Result.error("用户名已存在");
@@ -67,7 +61,7 @@ public class AuthController {
         
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword()); // UserService 中会加密
+        user.setPassword(request.getPassword());
         user.setStatus(1);
         
         boolean success = userService.saveUser(user);

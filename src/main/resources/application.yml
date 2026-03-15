@@ -62,6 +62,17 @@ server:
   servlet:
     context-path: /api
 
+# SpringDoc/Swagger 配置
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
 # 日志配置
 logging:
   level:
