@@ -43,7 +43,8 @@
 - XXL-JOB（定时任务）
 
 **部署运维**
-- Docker
+- ✅ Docker（一键启动）
+- ✅ Docker Compose
 - Nginx
 - Maven
 
@@ -91,8 +92,15 @@ spring:
 ```
 
 **5. 启动项目**
+
+**方式一：Maven 启动**
 ```bash
 mvn spring-boot:run
+```
+
+**方式二：Docker 一键启动（推荐）** 🐳
+```bash
+docker-compose up -d
 ```
 
 **6. 访问系统**
@@ -100,6 +108,11 @@ mvn spring-boot:run
 - Swagger 文档：http://localhost:8080/api/swagger-ui.html 📄
 - 默认管理员账号：admin / admin123
 - 用户管理：http://localhost:8080/api/users
+
+**7. 查看 Docker 日志**
+```bash
+docker-compose logs -f crm-app
+```
 
 ---
 
@@ -245,7 +258,10 @@ public void sendEmail(FollowUp followUp) {
 | 2026-03-14 | 合同管理模块 | ✅ |
 | 2026-03-14 | 权限管理模块（RBAC） | ✅ |
 | 2026-03-15 | 用户管理模块 | ✅ |
-| 2026-03-15 | 数据字典模块 | ✅ 🆕 |
+| 2026-03-15 | 数据字典模块 | ✅ |
+| 2026-03-16 | 安全修复（密码加密/Token 解析） | ✅ |
+| 2026-03-16 | Swagger 集成 | ✅ |
+| 2026-03-16 | Docker 部署 | ✅ 🆕 |
 | 待更新 | 前端开发、单元测试 | ⏳ |
 
 ---
@@ -325,4 +341,5 @@ A: 本项目采用 MIT 协议，可以免费用于学习和商用。
 *API Version: v1.9.0*  
 *Total APIs: 70*  
 *Swagger*: http://localhost:8080/api/swagger-ui.html 📄  
+*Docker*: `docker-compose up -d` 🐳  
 *GitHub: https://github.com/wenlishi/crm-system*
