@@ -2,6 +2,7 @@ package com.crm.system.modules.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crm.system.common.Result;
+import com.crm.system.common.interceptor.CurrentUserContext;
 import com.crm.system.modules.system.dto.UserRequest;
 import com.crm.system.modules.system.entity.User;
 import com.crm.system.modules.system.service.UserService;
@@ -129,8 +130,8 @@ public class UserController {
     @DeleteMapping("/{id}")
     public Result<Boolean> delete(@PathVariable Long id) {
         // 不允许删除自己
-        Long currentUserId = 1L; // TODO: 从 Token 中获取
-        if (id.equals(currentUserId)) {
+        Long currentUserId = CurrentUserContext.getUserId();
+        if (currentUserId != null && id.equals(currentUserId)) {
             return Result.error("不能删除自己");
         }
 
@@ -144,8 +145,8 @@ public class UserController {
     @DeleteMapping
     public Result<Boolean> batchDelete(@RequestParam List<Long> ids) {
         // 不允许删除自己
-        Long currentUserId = 1L; // TODO: 从 Token 中获取
-        if (ids.contains(currentUserId)) {
+        Long currentUserId = CurrentUserContext.getUserId();
+        if (currentUserId != null && ids.contains(currentUserId)) {
             return Result.error("不能删除自己");
         }
 
@@ -193,8 +194,11 @@ public class UserController {
     public Result<Boolean> updatePassword(
             @RequestParam String oldPassword,
             @RequestParam String newPassword) {
-        // TODO: 从 Token 中获取当前用户 ID
-        Long userId = 1L;
+        // 从 Token 中获取当前用户 ID
+        Long userId = CurrentUserContext.getUserId();
+        if (userId == null) {
+            return Result.error("未登录");
+        }
         
         boolean success = userService.updatePassword(userId, oldPassword, newPassword);
         return success ? Result.success("密码修改成功", true) : Result.error("原密码错误");

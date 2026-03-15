@@ -1,6 +1,7 @@
 package com.crm.system.modules.system.controller;
 
 import com.crm.system.common.Result;
+import com.crm.system.common.interceptor.CurrentUserContext;
 import com.crm.system.modules.system.dto.LoginRequest;
 import com.crm.system.modules.system.dto.LoginResponse;
 import com.crm.system.modules.system.entity.User;
@@ -37,8 +38,19 @@ public class AuthController {
      */
     @GetMapping("/info")
     public Result<User> getInfo() {
-        // TODO: 从 Token 中解析用户 ID
-        User user = userService.getById(1L);
+        // 从 Token 中解析用户 ID
+        Long userId = CurrentUserContext.getUserId();
+        if (userId == null) {
+            return Result.error("未登录");
+        }
+        
+        User user = userService.getById(userId);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+        
+        // 不返回密码
+        user.setPassword(null);
         return Result.success(user);
     }
 
@@ -47,13 +59,18 @@ public class AuthController {
      */
     @PostMapping("/register")
     public Result<Boolean> register(@Valid @RequestBody LoginRequest request) {
+        // 检查用户名是否已存在
+        User existUser = userService.getByUsername(request.getUsername());
+        if (existUser != null) {
+            return Result.error("用户名已存在");
+        }
+        
         User user = new User();
         user.setUsername(request.getUsername());
-        // TODO: 密码加密
-        user.setPassword(request.getPassword());
+        user.setPassword(request.getPassword()); // UserService 中会加密
         user.setStatus(1);
         
-        boolean success = userService.save(user);
+        boolean success = userService.saveUser(user);
         return success ? Result.success("注册成功", true) : Result.error("注册失败");
     }
 }
