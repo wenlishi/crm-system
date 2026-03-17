@@ -1,0 +1,327 @@
+{
+  "demo_info": {
+    "title": "CRM 系统 API 演示",
+    "version": "v1.9.0",
+    "date": "2026-03-18",
+    "base_url": "http://localhost:8080/api"
+  },
+  
+  "1_login": {
+    "request": {
+      "method": "POST",
+      "url": "/api/auth/login",
+      "body": {
+        "username": "admin",
+        "password": "admin123"
+      }
+    },
+    "response": {
+      "code": 200,
+      "message": "登录成功",
+      "data": {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJleHAiOjE3MTA4NjQwMDB9.xxx",
+        "expiresIn": 86400,
+        "user": {
+          "id": 1,
+          "username": "admin",
+          "nickname": "管理员",
+          "email": "admin@example.com",
+          "roles": ["ADMIN"],
+          "status": "ACTIVE"
+        }
+      }
+    }
+  },
+  
+  "2_getUserInfo": {
+    "request": {
+      "method": "GET",
+      "url": "/api/auth/info",
+      "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      }
+    },
+    "response": {
+      "code": 200,
+      "data": {
+        "id": 1,
+        "username": "admin",
+        "nickname": "管理员",
+        "email": "admin@example.com",
+        "avatar": "https://example.com/avatar.jpg",
+        "roles": ["ADMIN"],
+        "permissions": ["*:*:*"]
+      }
+    }
+  },
+  
+  "3_createCustomer": {
+    "request": {
+      "method": "POST",
+      "url": "/api/customers",
+      "headers": {
+        "Authorization": "Bearer TOKEN"
+      },
+      "body": {
+        "name": "演示科技公司",
+        "contact": "王经理",
+        "phone": "13800138000",
+        "email": "wang@example.com",
+        "source": "线上咨询",
+        "level": "A",
+        "address": "北京市海淀区中关村"
+      }
+    },
+    "response": {
+      "code": 200,
+      "message": "创建成功",
+      "data": {
+        "id": 101,
+        "name": "演示科技公司",
+        "contact": "王经理",
+        "phone": "13800138000",
+        "email": "wang@example.com",
+        "level": "A",
+        "status": "跟进中",
+        "ownerId": 1,
+        "createTime": "2026-03-18T00:00:00",
+        "updateTime": "2026-03-18T00:00:00"
+      }
+    }
+  },
+  
+  "4_listCustomers": {
+    "request": {
+      "method": "GET",
+      "url": "/api/customers?page=1&size=10"
+    },
+    "response": {
+      "code": 200,
+      "data": {
+        "records": [
+          {
+            "id": 101,
+            "name": "演示科技公司",
+            "contact": "王经理",
+            "phone": "13800138000",
+            "level": "A",
+            "status": "跟进中"
+          },
+          {
+            "id": 102,
+            "name": "张三贸易",
+            "contact": "张三",
+            "phone": "13900139000",
+            "level": "B",
+            "status": "意向"
+          },
+          {
+            "id": 103,
+            "name": "李四集团",
+            "contact": "李四",
+            "phone": "13700137000",
+            "level": "S",
+            "status": "成交"
+          }
+        ],
+        "total": 25,
+        "page": 1,
+        "size": 10,
+        "pages": 3
+      }
+    }
+  },
+  
+  "5_getCustomer": {
+    "request": {
+      "method": "GET",
+      "url": "/api/customers/101"
+    },
+    "response": {
+      "code": 200,
+      "data": {
+        "id": 101,
+        "name": "演示科技公司",
+        "contact": "王经理",
+        "phone": "13800138000",
+        "email": "wang@example.com",
+        "source": "线上咨询",
+        "level": "A",
+        "status": "跟进中",
+        "address": "北京市海淀区中关村",
+        "remark": "重点客户，需要重点跟进",
+        "ownerId": 1,
+        "createTime": "2026-03-18T00:00:00",
+        "updateTime": "2026-03-18T00:00:00"
+      }
+    }
+  },
+  
+  "6_updateCustomer": {
+    "request": {
+      "method": "PUT",
+      "url": "/api/customers/101",
+      "body": {
+        "name": "演示科技集团",
+        "level": "S",
+        "status": "成交"
+      }
+    },
+    "response": {
+      "code": 200,
+      "message": "更新成功",
+      "data": {
+        "id": 101,
+        "name": "演示科技集团",
+        "level": "S",
+        "status": "成交"
+      }
+    }
+  },
+  
+  "7_createFollowUp": {
+    "request": {
+      "method": "POST",
+      "url": "/api/follow-ups",
+      "body": {
+        "customerId": 101,
+        "content": "电话沟通，客户对产品很感兴趣，约定下周演示产品",
+        "type": "电话",
+        "nextFollowUpTime": "2026-03-25 10:00:00"
+      }
+    },
+    "response": {
+      "code": 200,
+      "message": "跟进成功",
+      "data": {
+        "id": 501,
+        "customerId": 101,
+        "content": "电话沟通，客户对产品很感兴趣，约定下周演示产品",
+        "type": "电话",
+        "nextFollowUpTime": "2026-03-25 10:00:00",
+        "creatorId": 1,
+        "creatorName": "管理员",
+        "createTime": "2026-03-18T00:00:00"
+      }
+    }
+  },
+  
+  "8_listFollowUps": {
+    "request": {
+      "method": "GET",
+      "url": "/api/follow-ups?customerId=101"
+    },
+    "response": {
+      "code": 200,
+      "data": [
+        {
+          "id": 501,
+          "content": "电话沟通，客户对产品很感兴趣",
+          "type": "电话",
+          "creatorName": "管理员",
+          "createTime": "2026-03-18T00:00:00"
+        },
+        {
+          "id": 498,
+          "content": "初次拜访，了解客户需求",
+          "type": "拜访",
+          "creatorName": "销售员 A",
+          "createTime": "2026-03-15T00:00:00"
+        },
+        {
+          "id": 495,
+          "content": "客户主动咨询，发送产品资料",
+          "type": "在线咨询",
+          "creatorName": "客服 B",
+          "createTime": "2026-03-10T00:00:00"
+        }
+      ]
+    }
+  },
+  
+  "9_customerStats": {
+    "request": {
+      "method": "GET",
+      "url": "/api/statistics/customers"
+    },
+    "response": {
+      "code": 200,
+      "data": {
+        "total": 156,
+        "thisWeek": 12,
+        "thisMonth": 45,
+        "byLevel": {
+          "S": 5,
+          "A": 28,
+          "B": 67,
+          "C": 56
+        },
+        "byStatus": {
+          "跟进中": 89,
+          "意向": 34,
+          "成交": 23,
+          "流失": 10
+        },
+        "trend": [
+          {"date": "2026-03-11", "count": 8},
+          {"date": "2026-03-12", "count": 12},
+          {"date": "2026-03-13", "count": 15},
+          {"date": "2026-03-14", "count": 10},
+          {"date": "2026-03-15", "count": 18},
+          {"date": "2026-03-16", "count": 14},
+          {"date": "2026-03-17", "count": 12}
+        ]
+      }
+    }
+  },
+  
+  "10_contractStats": {
+    "request": {
+      "method": "GET",
+      "url": "/api/statistics/contracts"
+    },
+    "response": {
+      "code": 200,
+      "data": {
+        "totalAmount": 1250000.00,
+        "thisMonth": 380000.00,
+        "totalCount": 28,
+        "thisMonthCount": 8,
+        "byStatus": {
+          "草稿": 5,
+          "审核中": 3,
+          "执行中": 12,
+          "已完成": 8
+        },
+        "topSales": [
+          {"name": "销售员 A", "amount": 450000},
+          {"name": "销售员 B", "amount": 380000},
+          {"name": "销售员 C", "amount": 290000}
+        ]
+      }
+    }
+  },
+  
+  "error_examples": {
+    "401_unauthorized": {
+      "code": 401,
+      "message": "未授权访问",
+      "data": null
+    },
+    "403_forbidden": {
+      "code": 403,
+      "message": "权限不足",
+      "data": null
+    },
+    "404_not_found": {
+      "code": 404,
+      "message": "资源不存在",
+      "data": null
+    },
+    "500_server_error": {
+      "code": 500,
+      "message": "服务器内部错误",
+      "data": null
+    }
+  }
+}
