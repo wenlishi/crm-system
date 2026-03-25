@@ -5,7 +5,14 @@ import router from '@/router'
 export const useUserStore = defineStore('user', {
   state: () => ({
     token: localStorage.getItem('token') || '',
-    userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}'),
+    userInfo: (() => {
+      try {
+        const info = localStorage.getItem('userInfo')
+        return info ? JSON.parse(info) : {}
+      } catch (e) {
+        return {}
+      }
+    })(),
     permissions: []
   }),
   
