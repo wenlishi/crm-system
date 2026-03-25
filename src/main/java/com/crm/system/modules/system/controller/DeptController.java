@@ -94,7 +94,7 @@ public class DeptController {
         }
         
         deptService.removeById(id);
-        return Result.success("删除成功");
+        return Result.success();
     }
 
     /**

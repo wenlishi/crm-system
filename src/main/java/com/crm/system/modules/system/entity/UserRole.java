@@ -26,6 +26,5 @@ public class UserRole implements Serializable {
     /**
      * 角色 ID
      */
-    @TableId(value = "role_id", type = IdType.INPUT)
     private Long roleId;
 }

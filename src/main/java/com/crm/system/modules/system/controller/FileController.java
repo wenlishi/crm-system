@@ -81,7 +81,7 @@ public class FileController {
     @OperationLog(module = "文件管理", type = "删除", description = "删除文件")
     public Result<Void> delete(@PathVariable Long fileId) {
         fileService.delete(fileId);
-        return Result.success("删除成功");
+        return Result.success();
     }
 
     /**

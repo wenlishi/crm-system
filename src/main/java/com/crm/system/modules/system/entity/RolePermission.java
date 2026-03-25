@@ -26,6 +26,5 @@ public class RolePermission implements Serializable {
     /**
      * 权限 ID
      */
-    @TableId(value = "permission_id", type = IdType.INPUT)
     private Long permissionId;
 }

@@ -52,7 +52,7 @@ public class OperationLogController {
     @DeleteMapping("/clear")
     public Result<Void> clear() {
         operationLogService.clearLogs();
-        return Result.success("日志已清空");
+        return Result.success();
     }
 
     /**

@@ -83,6 +83,6 @@ public class CustomerPoolController {
             @RequestParam(required = false) Integer reason,
             @RequestParam(required = false) String remark) {
         customerPoolService.dropToPool(customerId, reason != null ? reason : 4, remark);
-        return Result.success("释放成功");
+        return Result.success();
     }
 }
