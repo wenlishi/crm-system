@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crm.system.modules.contract.entity.Contract;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**

@@ -2,7 +2,6 @@ package com.crm.system.common.aspect;
 
 import com.crm.system.common.annotation.OperationLog;
 import com.crm.system.common.utils.UserContext;
-import com.crm.system.modules.system.entity.OperationLog;
 import com.crm.system.modules.system.service.OperationLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,7 +57,7 @@ public class OperationLogAspect {
         OperationLog annotation = method.getAnnotation(OperationLog.class);
         
         // 构建操作日志对象
-        OperationLog operationLog = new OperationLog();
+        com.crm.system.modules.system.entity.OperationLog operationLog = new com.crm.system.modules.system.entity.OperationLog();
         operationLog.setUserId(UserContext.getUserId());
         operationLog.setUsername(UserContext.getUsername());
         operationLog.setModule(annotation.module());
