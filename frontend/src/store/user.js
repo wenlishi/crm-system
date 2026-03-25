@@ -21,9 +21,15 @@ export const useUserStore = defineStore('user', {
       try {
         const res = await login(loginForm)
         this.token = res.data.token
-        this.userInfo = res.data.userInfo
+        // 适配后端返回的数据结构
+        this.userInfo = {
+          userId: res.data.userId,
+          username: res.data.username,
+          nickname: res.data.username,
+          avatar: ''
+        }
         localStorage.setItem('token', res.data.token)
-        localStorage.setItem('userInfo', JSON.stringify(res.data.userInfo))
+        localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
         router.push('/')
         return Promise.resolve(res)
       } catch (error) {

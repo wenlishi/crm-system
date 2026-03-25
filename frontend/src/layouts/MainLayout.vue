@@ -43,10 +43,7 @@
         
         <div class="header-right">
           <el-dropdown @command="handleCommand">
-            <span class="user-info">
-              <el-avatar :size="32" :src="userStore.avatar || defaultAvatar" />
-              <span class="username">{{ userStore.nickname || userStore.username }}</span>
-            </span>
+            <el-avatar :size="32" :src="userStore.avatar || defaultAvatar" />
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="profile">个人中心</el-dropdown-item>
