@@ -60,6 +60,12 @@ const routes = [
         name: 'Roles',
         component: () => import('@/views/system/RoleList.vue'),
         meta: { title: '角色权限', icon: 'Setting' }
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/system/Profile.vue'),
+        meta: { title: '个人中心', hidden: true }
       }
     ]
   }

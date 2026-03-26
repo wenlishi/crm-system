@@ -147,9 +147,9 @@ const handleCommand = async (command) => {
       // 取消退出
     }
   } else if (command === 'profile') {
-    console.log('个人中心')
+    router.push('/profile')
   } else if (command === 'settings') {
-    console.log('系统设置')
+    ElMessage.info('系统设置功能待开发')
   }
 }
 </script>
