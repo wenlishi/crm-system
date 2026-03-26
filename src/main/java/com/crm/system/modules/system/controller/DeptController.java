@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2026-03-14
  */
 @RestController
-@RequestMapping("/api/depts")
+@RequestMapping("/depts")
 public class DeptController {
 
     @Autowired

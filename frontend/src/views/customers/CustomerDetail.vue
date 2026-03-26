@@ -58,7 +58,7 @@
           <el-card>
             <h4>{{ item.title }}</h4>
             <p>{{ item.content }}</p>
-            <p class="next-time">下次联系时间：{{ item.nextContactTime || '未设置' }}</p>
+            <p class="next-time">下次联系时间：{{ item.nextFollowTime || '未设置' }}</p>
           </el-card>
         </el-timeline-item>
       </el-timeline>
@@ -87,9 +87,9 @@
           />
         </el-form-item>
         
-        <el-form-item label="下次联系时间" prop="nextContactTime">
+        <el-form-item label="下次联系时间" prop="nextFollowTime">
           <el-date-picker
-            v-model="followUpForm.nextContactTime"
+            v-model="followUpForm.nextFollowTime"
             type="datetime"
             placeholder="选择下次联系时间"
             style="width: 100%"
@@ -124,7 +124,7 @@ const followUpForm = reactive({
   customerId: null,
   title: '',
   content: '',
-  nextContactTime: ''
+  nextFollowTime: ''
 })
 
 const followUpRules = {
@@ -160,9 +160,14 @@ const getSourceText = (source) => {
 const loadCustomerDetail = async () => {
   try {
     const res = await getCustomerDetail(route.params.id)
-    customer.value = res.data
+    if (res.code === 200 && res.data) {
+      customer.value = res.data
+    } else {
+      ElMessage.error('客户不存在')
+    }
   } catch (error) {
     console.error('加载客户详情失败:', error)
+    ElMessage.error('加载客户详情失败：' + (error.message || '未知错误'))
   }
 }
 

@@ -34,6 +34,33 @@ public interface ContractService extends IService<Contract> {
     Page<Contract> pageByStatus(Integer status, Integer current, Integer size);
 
     /**
+     * 根据条件分页查询合同
+     * 
+     * @param contractName 合同名称（可选）
+     * @param customerName 客户名称（可选）
+     * @param status 合同状态（可选）
+     * @param current 当前页码
+     * @param size 每页数量
+     * @return 分页结果
+     */
+    Page<Contract> pageByCondition(String contractName, String customerName, Integer status, Integer current, Integer size);
+
+    /**
+     * 保存合同（处理前端字段转换）
+     */
+    boolean saveContract(Contract contract);
+
+    /**
+     * 更新合同（处理前端字段转换）
+     */
+    boolean updateContract(Contract contract);
+
+    /**
+     * 根据 ID 查询合同（处理前端字段转换）
+     */
+    Contract getById(Long id);
+
+    /**
      * 获取合同统计
      * 
      * @return 合同统计数据

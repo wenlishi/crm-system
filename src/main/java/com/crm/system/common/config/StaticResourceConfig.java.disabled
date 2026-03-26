@@ -1,0 +1,45 @@
+package com.crm.system.common.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.resource.PathResourceResolver;
+
+import java.io.IOException;
+
+/**
+ * 静态资源配置
+ * 
+ * @author wenlishi
+ * @since 2026-03-26
+ */
+@Configuration
+@Order(Ordered.HIGHEST_PRECEDENCE + 1000) // 最低优先级，让 Controller 优先处理
+public class StaticResourceConfig implements WebMvcConfigurer {
+    
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 配置静态资源，ApiPathResourceResolver 会排除 api/ 路径
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/")
+                .resourceChain(true)
+                .addResolver(new ApiPathResourceResolver());
+    }
+    
+    /**
+     * 自定义资源解析器，排除 API 路径
+     */
+    private static class ApiPathResourceResolver extends PathResourceResolver {
+        @Override
+        protected Resource getResource(String resourcePath, Resource location) throws IOException {
+            // 如果路径以 api/开头，则不处理（交给 Controller 处理）
+            if (resourcePath.startsWith("api/")) {
+                return null;
+            }
+            return super.getResource(resourcePath, location);
+        }
+    }
+}

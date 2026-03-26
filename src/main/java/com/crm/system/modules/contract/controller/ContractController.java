@@ -16,7 +16,7 @@ import java.util.List;
  * @since 2026-03-14
  */
 @RestController
-@RequestMapping("/api/contracts")
+@RequestMapping("/contracts")
 public class ContractController {
 
     @Autowired
@@ -36,10 +36,12 @@ public class ContractController {
      */
     @GetMapping("/page")
     public Result<Page<Contract>> page(
+            @RequestParam(required = false) String contractName,
+            @RequestParam(required = false) String customerName,
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size) {
-        Page<Contract> page = contractService.pageByStatus(status, current, size);
+        Page<Contract> page = contractService.pageByCondition(contractName, customerName, status, current, size);
         return Result.success(page);
     }
 
@@ -60,7 +62,7 @@ public class ContractController {
      */
     @PostMapping
     public Result<Contract> add(@RequestBody Contract contract) {
-        contractService.save(contract);
+        contractService.saveContract(contract);
         return Result.success(contract);
     }
 
@@ -69,7 +71,7 @@ public class ContractController {
      */
     @PutMapping
     public Result<Contract> update(@RequestBody Contract contract) {
-        contractService.updateById(contract);
+        contractService.updateContract(contract);
         return Result.success(contract);
     }
 

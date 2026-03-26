@@ -24,6 +24,8 @@ public class FollowUp implements Serializable {
      * 跟进 ID
      */
     @TableId(value = "follow_id", type = IdType.ASSIGN_ID)
+    @com.fasterxml.jackson.annotation.JsonProperty("followUpId")
+    @com.fasterxml.jackson.annotation.JsonAlias("followUpId")
     private Long followId;
 
     /**
@@ -32,14 +34,31 @@ public class FollowUp implements Serializable {
     private Long customerId;
 
     /**
+     * 客户名称（前端使用，不映射到数据库）
+     */
+    @TableField(exist = false)
+    private String customerName;
+
+    /**
      * 跟进人 ID
      */
     private Long userId;
 
     /**
+     * 跟进标题
+     */
+    private String title;
+
+    /**
      * 跟进方式（1 电话 2 微信 3 邮件 4 面谈 5 其他）
      */
     private Integer followType;
+
+    /**
+     * 跟进方式文本（前端使用 contactType，不映射到数据库）
+     */
+    @TableField(exist = false)
+    private String contactType;
 
     /**
      * 跟进内容

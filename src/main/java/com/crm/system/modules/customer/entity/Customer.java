@@ -32,6 +32,11 @@ public class Customer implements Serializable {
     private String customerName;
 
     /**
+     * 联系人
+     */
+    private String contact;
+
+    /**
      * 客户类型（1 个人 2 企业）
      */
     private Integer customerType;

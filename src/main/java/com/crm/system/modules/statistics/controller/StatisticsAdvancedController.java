@@ -20,7 +20,7 @@ import java.util.Map;
  * @since 2026-03-14
  */
 @RestController
-@RequestMapping("/api/statistics")
+@RequestMapping("/statistics")
 public class StatisticsAdvancedController {
 
     @Autowired

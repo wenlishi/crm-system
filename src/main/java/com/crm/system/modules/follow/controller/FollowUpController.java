@@ -36,7 +36,7 @@ public class FollowUpController {
      */
     @GetMapping("/page")
     public Result<Page<FollowUp>> page(
-            @RequestParam Long customerId,
+            @RequestParam(required = false) Long customerId,
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size) {
         Page<FollowUp> page = followUpService.pageByCustomerId(customerId, current, size);

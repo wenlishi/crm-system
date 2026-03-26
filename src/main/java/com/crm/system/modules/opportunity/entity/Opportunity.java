@@ -34,6 +34,12 @@ public class Opportunity implements Serializable {
     private Long customerId;
 
     /**
+     * 客户名称（前端使用，不映射到数据库）
+     */
+    @TableField(exist = false)
+    private String customerName;
+
+    /**
      * 商机名称
      */
     private String opportunityName;
@@ -46,6 +52,8 @@ public class Opportunity implements Serializable {
     /**
      * 预计金额
      */
+    @com.fasterxml.jackson.annotation.JsonProperty("amount")
+    @com.fasterxml.jackson.annotation.JsonAlias("amount")
     private BigDecimal expectedAmount;
 
     /**

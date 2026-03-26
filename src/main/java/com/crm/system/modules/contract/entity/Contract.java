@@ -44,6 +44,12 @@ public class Contract implements Serializable {
     private Long customerId;
 
     /**
+     * 客户名称（前端使用，不映射到数据库）
+     */
+    @TableField(exist = false)
+    private String customerName;
+
+    /**
      * 商机 ID
      */
     private Long opportunityId;
@@ -64,14 +70,26 @@ public class Contract implements Serializable {
     private LocalDate startDate;
 
     /**
+     * 生效日期（前端使用，与 startDate 相同）
+     */
+    @TableField(exist = false)
+    private LocalDate effectiveDate;
+
+    /**
      * 结束日期
      */
     private LocalDate endDate;
 
     /**
-     * 合同状态（1 草稿 2 待审核 3 已审核 4 执行中 5 已完成 6 已终止）
+     * 到期日期（前端使用，与 endDate 相同）
      */
-    private Integer status;
+    @TableField(exist = false)
+    private LocalDate expiryDate;
+
+    /**
+     * 合同状态（0 草稿 1 待审核 2 已审核 3 执行中 4 已完成 5 已终止）
+     */
+    private Integer status = 0;
 
     /**
      * 合同文件 URL
