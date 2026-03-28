@@ -139,7 +139,7 @@ import { useUserStore } from '@/store/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Upload, Camera } from '@element-plus/icons-vue'
 import request from '@/utils/request'
-import Cropper from 'cropperjs'
+import { Cropper } from 'cropperjs'
 
 const userStore = useUserStore()
 

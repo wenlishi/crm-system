@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # RabbitMQ 服务
+  # ============================================
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: crm-rabbitmq
+    restart: always
+    ports:
+      # AMQP 端口
+      - "5672:5672"
+      # 管理界面端口
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - crm-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # MySQL 服务
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: crm-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: crm_system
+      MYSQL_USER: crm_user
+      MYSQL_PASSWORD: crm123
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docs/sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - crm-network
+
+  # ============================================
+  # Redis 服务
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: crm-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - crm-network
+
+  # ============================================
+  # 后端服务
+  # ============================================
+  crm-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crm-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/crm_system?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: crm_user
+      SPRING_DATASOURCE_PASSWORD: crm123
+      SPRING_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+    networks:
+      - crm-network
+
+networks:
+  crm-network:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:
+  mysql_data:
+  redis_data:

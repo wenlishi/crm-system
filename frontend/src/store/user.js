@@ -20,7 +20,8 @@ export const useUserStore = defineStore('user', {
     isLoggedIn: (state) => !!state.token,
     username: (state) => state.userInfo.username || '',
     nickname: (state) => state.userInfo.nickname || '',
-    avatar: (state) => state.userInfo.avatar || ''
+    avatar: (state) => state.userInfo.avatar || '',
+    user: (state) => state.userInfo  // 添加 user getter 兼容旧代码
   },
   
   actions: {
@@ -53,6 +54,11 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         return Promise.reject(error)
       }
+    },
+    
+    setUser(userInfo) {
+      this.userInfo = { ...this.userInfo, ...userInfo }
+      localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
     },
     
     async logout() {
