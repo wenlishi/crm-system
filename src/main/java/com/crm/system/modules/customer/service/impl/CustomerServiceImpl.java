@@ -30,7 +30,6 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         return list();
     }
 
-    @Override
     @DataPermission(value = DataType.CUSTOMER, field = "owner_id")
     @Cacheable(value = "customer:page", key = "#page.current + ':' + #page.size")
     public Page<Customer> page(Page<Customer> page) {
