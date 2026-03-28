@@ -93,3 +93,7 @@ frontend/.vite/
 *.bak
 *.swp
 *~
+
+# Docs (markdown files only, keep SQL and images)
+docs/**/*.md
+docs/*.md
