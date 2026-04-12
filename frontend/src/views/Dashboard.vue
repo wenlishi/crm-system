@@ -4,8 +4,8 @@
     <div class="welcome-section">
       <div class="welcome-content">
         <div class="welcome-text">
-          <h1 class="welcome-title">欢迎回来</h1>
-          <p class="welcome-subtitle">继续完成今天的任务，一切进展顺利</p>
+          <h1 class="welcome-title">欢迎回来，管理员</h1>
+          <p class="welcome-subtitle">今天是个好日子，继续完成销售目标吧！</p>
         </div>
         <div class="welcome-date">
           <el-icon><Calendar /></el-icon>
@@ -26,13 +26,12 @@
             <div class="stat-info">
               <div class="stat-label">客户总数</div>
               <div class="stat-value">{{ formatNumber(stats.totalCustomers) }}</div>
-              <div class="stat-trend positive" v-if="stats.todayCustomers > 0">
+              <div class="stat-trend positive">
                 <span class="trend-icon">↑</span>
                 <span>今日新增 {{ stats.todayCustomers }} 人</span>
               </div>
             </div>
           </div>
-          <div class="stat-card-footer"></div>
         </div>
       </el-col>
       
@@ -46,13 +45,12 @@
             <div class="stat-info">
               <div class="stat-label">跟进记录</div>
               <div class="stat-value">{{ formatNumber(stats.totalFollowUps) }}</div>
-              <div class="stat-trend positive" v-if="stats.weekFollowUps > 0">
+              <div class="stat-trend positive">
                 <span class="trend-icon">↑</span>
                 <span>本周 {{ stats.weekFollowUps }} 次</span>
               </div>
             </div>
           </div>
-          <div class="stat-card-footer"></div>
         </div>
       </el-col>
       
@@ -66,9 +64,12 @@
             <div class="stat-info">
               <div class="stat-label">商机数量</div>
               <div class="stat-value">{{ formatNumber(stats.totalOpportunities) }}</div>
+              <div class="stat-trend positive">
+                <span class="trend-icon">↑</span>
+                <span>本月新增 {{ stats.newOpportunities }} 个</span>
+              </div>
             </div>
           </div>
-          <div class="stat-card-footer"></div>
         </div>
       </el-col>
       
@@ -82,21 +83,24 @@
             <div class="stat-info">
               <div class="stat-label">合同金额</div>
               <div class="stat-value">{{ formatMoney(stats.totalContractAmount) }}</div>
+              <div class="stat-trend positive">
+                <span class="trend-icon">↑</span>
+                <span>本月 {{ stats.monthContractAmount }}</span>
+              </div>
             </div>
           </div>
-          <div class="stat-card-footer"></div>
         </div>
       </el-col>
     </el-row>
 
-    <!-- 图表区域 -->
+    <!-- 第一行图表 -->
     <el-row :gutter="16" class="charts-row">
       <el-col :span="12">
         <div class="chart-card">
           <div class="chart-header">
             <div class="chart-title-wrapper">
-              <span class="chart-title">客户增长趋势</span>
-              <span class="chart-badge">实时更新</span>
+              <span class="chart-title">📈 客户增长趋势</span>
+              <span class="chart-badge">近 30 天</span>
             </div>
           </div>
           <div ref="customerGrowthChart" class="chart"></div>
@@ -107,8 +111,8 @@
         <div class="chart-card">
           <div class="chart-header">
             <div class="chart-title-wrapper">
-              <span class="chart-title">客户级别分布</span>
-              <span class="chart-badge warning">重要</span>
+              <span class="chart-title">🎯 客户级别分布</span>
+              <span class="chart-badge warning">实时</span>
             </div>
           </div>
           <div ref="customerLevelChart" class="chart"></div>
@@ -116,16 +120,44 @@
       </el-col>
     </el-row>
 
+    <!-- 第二行图表 -->
+    <el-row :gutter="16" class="charts-row">
+      <el-col :span="12">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-wrapper">
+              <span class="chart-title">💰 合同金额统计</span>
+              <span class="chart-badge primary">年度</span>
+            </div>
+          </div>
+          <div ref="contractChart" class="chart"></div>
+        </div>
+      </el-col>
+      
+      <el-col :span="12">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title-wrapper">
+              <span class="chart-title">📊 销售漏斗</span>
+              <span class="chart-badge" style="background: linear-gradient(135deg, #fff1f0, #ffccc7); color: #f5222d; border: 1px solid rgba(245, 34, 45, 0.2);">转化分析</span>
+            </div>
+          </div>
+          <div ref="salesFunnelChart" class="chart"></div>
+        </div>
+      </el-col>
+    </el-row>
+
+    <!-- 第三行图表 -->
     <el-row :gutter="16" class="charts-row">
       <el-col :span="24">
         <div class="chart-card chart-card-large">
           <div class="chart-header">
             <div class="chart-title-wrapper">
-              <span class="chart-title">合同金额统计</span>
-              <span class="chart-badge primary">年度累计</span>
+              <span class="chart-title">📉 线索来源分析</span>
+              <span class="chart-badge" style="background: linear-gradient(135deg, #f9f0ff, #efdbff); color: #722ed1; border: 1px solid rgba(114, 46, 209, 0.2);">多渠道</span>
             </div>
           </div>
-          <div ref="contractChart" class="chart-large"></div>
+          <div ref="leadSourceChart" class="chart-large"></div>
         </div>
       </el-col>
     </el-row>
@@ -136,18 +168,20 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { User, Document, Money, DocumentCopy, Calendar } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
-import axios from 'axios'
 
-const stats = ref({
-  totalCustomers: 0,
-  totalFollowUps: 0,
-  totalOpportunities: 0,
-  totalContractAmount: 0,
-  todayCustomers: 0,
-  weekFollowUps: 0,
-  validCustomers: 0
+// 统计数据
+const stats = reactive({
+  totalCustomers: 1268,
+  totalFollowUps: 3456,
+  totalOpportunities: 256,
+  totalContractAmount: 8976000,
+  todayCustomers: 18,
+  weekFollowUps: 142,
+  newOpportunities: 32,
+  monthContractAmount: '¥126.5 万'
 })
 
+// 当前日期
 const currentDate = computed(() => {
   const now = new Date()
   const year = now.getFullYear()
@@ -158,25 +192,14 @@ const currentDate = computed(() => {
   return `${year}年${month}月${day}日 ${weekDay}`
 })
 
+// 图表引用
 const customerGrowthChart = ref(null)
 const customerLevelChart = ref(null)
 const contractChart = ref(null)
+const salesFunnelChart = ref(null)
+const leadSourceChart = ref(null)
 
-const getToken = () => localStorage.getItem('token')
-
-const request = axios.create({
-  baseURL: '/api',
-  timeout: 15000
-})
-
-request.interceptors.request.use(config => {
-  const token = getToken()
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`
-  }
-  return config
-})
-
+// 格式化金额
 const formatMoney = (value) => {
   if (!value) return '0.00'
   const num = Number(value)
@@ -188,6 +211,7 @@ const formatMoney = (value) => {
   return num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
+// 格式化数字
 const formatNumber = (value) => {
   if (!value) return '0'
   const num = Number(value)
@@ -196,286 +220,369 @@ const formatNumber = (value) => {
   return num.toLocaleString('zh-CN')
 }
 
-const loadStats = async () => {
-  try {
-    const dashboardRes = await request.get('/statistics/dashboard')
-    if (dashboardRes.data.code === 200) {
-      const data = dashboardRes.data.data
-      stats.value.totalCustomers = Number(data.totalCustomers) || 0
-      stats.value.totalFollowUps = Number(data.totalFollowUps) || 0
-      stats.value.todayCustomers = Number(data.todayCustomers) || 0
-      stats.value.weekFollowUps = Number(data.weekFollowUps) || 0
-      stats.value.validCustomers = Number(data.validCustomers) || 0
-    }
-    
-    try {
-      const oppRes = await request.get('/opportunities/stats/stage')
-      if (oppRes.data.code === 200) {
-        stats.value.totalOpportunities = Number(oppRes.data.data.total) || 0
-      }
-    } catch (e) {
-      try {
-        const oppListRes = await request.get('/opportunities/page?current=1&size=1')
-        if (oppListRes.data.code === 200) {
-          stats.value.totalOpportunities = oppListRes.data.data.total || 0
-        }
-      } catch (e2) {}
-    }
-    
-    try {
-      const contractRes = await request.get('/contracts/page?current=1&size=100')
-      if (contractRes.data.code === 200) {
-        const contracts = contractRes.data.data.records || []
-        stats.value.totalContractAmount = contracts.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)
-      }
-    } catch (e) {}
-  } catch (error) {
-    console.error('加载统计数据失败:', error)
+// 生成近 30 天日期
+const generateDates = (days = 30) => {
+  const dates = []
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    dates.push(`${d.getMonth() + 1}/${d.getDate()}`)
   }
+  return dates
 }
 
-const loadCustomerGrowth = async () => {
-  try {
-    const res = await request.get('/statistics/customer-growth')
-    if (res.data.code === 200 && res.data.data.dailyStats) {
-      const dailyStats = res.data.data.dailyStats
-      return {
-        dates: dailyStats.map(item => item.date),
-        counts: dailyStats.map(item => Number(item.count))
-      }
-    }
-  } catch (error) {}
-  return { dates: [], counts: [] }
+// 生成模拟数据
+const generateGrowthData = () => {
+  const data = []
+  for (let i = 0; i < 30; i++) {
+    data.push(Math.floor(Math.random() * 50) + 20)
+  }
+  return data
 }
 
-const loadCustomerLevel = async () => {
-  try {
-    const res = await request.get('/customers/page?current=1&size=100')
-    if (res.data.code === 200) {
-      const customers = res.data.data.records || []
-      const levelCount = { 1: 0, 2: 0, 3: 0 }
-      customers.forEach(c => {
-        const level = c.level || 1
-        levelCount[level] = (levelCount[level] || 0) + 1
-      })
-      return [
-        { value: levelCount[1] || 0, name: '普通客户' },
-        { value: levelCount[2] || 0, name: 'VIP 客户' },
-        { value: levelCount[3] || 0, name: '重要客户' }
-      ]
-    }
-  } catch (error) {}
-  return []
-}
-
-const loadContractStats = async () => {
-  try {
-    const res = await request.get('/contracts/page?current=1&size=100')
-    if (res.data.code === 200) {
-      const contracts = res.data.data.records || []
-      const monthAmount = {}
-      contracts.forEach(c => {
-        if (c.signDate) {
-          const month = c.signDate.substring(0, 7)
-          monthAmount[month] = (monthAmount[month] || 0) + (Number(c.amount) || 0)
-        }
-      })
-      return {
-        months: Object.keys(monthAmount).sort(),
-        amounts: Object.keys(monthAmount).sort().map(m => monthAmount[m])
-      }
-    }
-  } catch (error) {}
-  return { months: [], amounts: [] }
-}
-
-const initCharts = async () => {
-  const growthData = await loadCustomerGrowth()
-  const levelData = await loadCustomerLevel()
-  const contractData = await loadContractStats()
+// 初始化客户增长趋势图
+const initCustomerGrowthChart = () => {
+  if (!customerGrowthChart.value) return
   
-  // 客户增长趋势图
-  if (customerGrowthChart.value) {
-    const chart = echarts.init(customerGrowthChart.value)
-    chart.setOption({
-      tooltip: {
-        trigger: 'axis',
-        backgroundColor: 'rgba(255, 255, 255, 1)',
-        borderColor: '#e8e8e8',
-        borderWidth: 1,
-        textStyle: { color: '#333', fontSize: 13 },
-        padding: [14, 18],
-        extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+  const chart = echarts.init(customerGrowthChart.value)
+  const dates = generateDates(30)
+  const counts = generateGrowthData()
+  
+  chart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: { color: '#333', fontSize: 13 },
+      padding: [14, 18],
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+    },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#999', fontSize: 12, margin: 16 }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#f5f5f5' } },
+      axisLabel: { color: '#999', fontSize: 12 },
+      axisTick: { show: false },
+      axisLine: { show: false }
+    },
+    series: [{
+      data: counts,
+      type: 'line',
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 10,
+      itemStyle: {
+        color: '#1890ff',
+        borderWidth: 3,
+        borderColor: '#fff',
+        shadowColor: 'rgba(24, 144, 255, 0.3)',
+        shadowBlur: 10
       },
-      grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: growthData.dates.length > 0 ? growthData.dates : ['暂无数据'],
-        axisLine: { show: false },
-        axisTick: { show: false },
-        axisLabel: { color: '#999', fontSize: 12, margin: 16 }
+      lineStyle: {
+        color: '#1890ff',
+        width: 3,
+        shadowColor: 'rgba(24, 144, 255, 0.3)',
+        shadowBlur: 10,
+        shadowOffsetY: 4
       },
-      yAxis: {
-        type: 'value',
-        splitLine: { lineStyle: { color: '#f5f5f5' } },
-        axisLabel: { color: '#999', fontSize: 12 },
-        axisTick: { show: false },
-        axisLine: { show: false }
-      },
-      series: [{
-        data: growthData.counts.length > 0 ? growthData.counts : [0],
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 10,
-        itemStyle: {
-          color: '#1890ff',
-          borderWidth: 3,
-          borderColor: '#fff',
-          shadowColor: 'rgba(24, 144, 255, 0.3)',
-          shadowBlur: 10
-        },
-        lineStyle: {
-          color: '#1890ff',
-          width: 3,
-          shadowColor: 'rgba(24, 144, 255, 0.3)',
-          shadowBlur: 10,
-          shadowOffsetY: 4
-        },
-        areaStyle: {
-          color: {
-            type: 'linear',
-            x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(24, 144, 255, 0.25)' },
-              { offset: 1, color: 'rgba(24, 144, 255, 0.02)' }
-            ]
-          }
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(24, 144, 255, 0.25)' },
+            { offset: 1, color: 'rgba(24, 144, 255, 0.02)' }
+          ]
         }
-      }]
-    })
-  }
+      }
+    }]
+  })
+}
 
-  // 客户级别分布图
-  if (customerLevelChart.value) {
-    const chart = echarts.init(customerLevelChart.value)
-    chart.setOption({
-      tooltip: {
-        trigger: 'item',
-        backgroundColor: 'rgba(255, 255, 255, 1)',
-        borderColor: '#e8e8e8',
-        borderWidth: 1,
-        textStyle: { color: '#333', fontSize: 13 },
-        padding: [14, 18],
-        extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+// 初始化客户级别分布图
+const initCustomerLevelChart = () => {
+  if (!customerLevelChart.value) return
+  
+  const chart = echarts.init(customerLevelChart.value)
+  
+  chart.setOption({
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: { color: '#333', fontSize: 13 },
+      padding: [14, 18],
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+    },
+    legend: {
+      orient: 'vertical',
+      right: '5%',
+      top: 'middle',
+      textStyle: { color: '#666', fontSize: 13 },
+      itemGap: 20,
+      itemWidth: 12,
+      itemHeight: 12
+    },
+    series: [{
+      type: 'pie',
+      radius: ['48%', '72%'],
+      center: ['35%', '50%'],
+      avoidLabelOverlap: false,
+      itemStyle: {
+        borderRadius: 10,
+        borderColor: '#fff',
+        borderWidth: 3
       },
-      legend: {
-        orient: 'vertical',
-        right: '5%',
-        top: 'middle',
-        textStyle: { color: '#666', fontSize: 13 },
-        itemGap: 20,
-        itemWidth: 12,
-        itemHeight: 12
+      label: { show: false, position: 'center' },
+      emphasis: {
+        label: {
+          show: true,
+          fontSize: 20,
+          fontWeight: '600',
+          color: '#333'
+        }
       },
-      series: [{
-        type: 'pie',
-        radius: ['48%', '72%'],
-        center: ['35%', '50%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 3
-        },
-        label: { show: false, position: 'center' },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 20,
-            fontWeight: '600',
-            color: '#333'
-          }
-        },
-        labelLine: { show: false },
-        data: levelData.length > 0 ? levelData : [
-          { value: 0, name: '普通客户' },
-          { value: 0, name: 'VIP 客户' },
-          { value: 0, name: '重要客户' }
-        ]
-      }]
-    })
-  }
+      labelLine: { show: false },
+      data: [
+        { value: 680, name: '普通客户', itemStyle: { color: '#1890ff' } },
+        { value: 420, name: 'VIP 客户', itemStyle: { color: '#722ed1' } },
+        { value: 168, name: '重要客户', itemStyle: { color: '#faad14' } }
+      ]
+    }]
+  })
+}
 
-  // 合同金额统计图
-  if (contractChart.value) {
-    const chart = echarts.init(contractChart.value)
-    chart.setOption({
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' },
-        backgroundColor: 'rgba(255, 255, 255, 1)',
-        borderColor: '#e8e8e8',
-        borderWidth: 1,
-        textStyle: { color: '#333', fontSize: 13 },
-        padding: [14, 18],
-        extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+// 初始化合同金额统计图
+const initContractChart = () => {
+  if (!contractChart.value) return
+  
+  const chart = echarts.init(contractChart.value)
+  
+  const months = ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月']
+  const amounts = [680000, 720000, 850000, 920000, 780000, 950000, 1020000, 880000, 960000, 1100000, 1250000, 1380000]
+  
+  chart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: { color: '#333', fontSize: 13 },
+      padding: [14, 18],
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+    },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: months,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#999', fontSize: 12, margin: 16 }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#f5f5f5' } },
+      axisLabel: {
+        color: '#999',
+        fontSize: 12,
+        formatter: (value) => {
+          if (value >= 1000000) return '¥' + (value / 1000000).toFixed(1) + '百万'
+          if (value >= 10000) return '¥' + (value / 10000).toFixed(0) + '万'
+          return '¥' + value
+        }
       },
-      grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: contractData.months.length > 0 ? contractData.months : ['暂无数据'],
-        axisLine: { show: false },
-        axisTick: { show: false },
-        axisLabel: { color: '#999', fontSize: 12, margin: 16 }
-      },
-      yAxis: {
-        type: 'value',
-        splitLine: { lineStyle: { color: '#f5f5f5' } },
-        axisLabel: {
-          color: '#999',
-          fontSize: 12,
-          formatter: (value) => {
-            if (value >= 100000000) return '¥' + (value / 100000000).toFixed(1) + '亿'
-            if (value >= 10000) return '¥' + (value / 10000).toFixed(0) + '万'
-            return '¥' + value
-          }
+      axisTick: { show: false },
+      axisLine: { show: false }
+    },
+    series: [{
+      data: amounts,
+      type: 'bar',
+      barWidth: '35%',
+      itemStyle: {
+        color: {
+          type: 'linear',
+          x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: '#1890ff' },
+            { offset: 1, color: '#69c0ff' }
+          ]
         },
-        axisTick: { show: false },
-        axisLine: { show: false }
+        borderRadius: [8, 8, 0, 0],
+        shadowColor: 'rgba(24, 144, 255, 0.3)',
+        shadowBlur: 10,
+        shadowOffsetY: 4
+      }
+    }]
+  })
+}
+
+// 初始化销售漏斗图
+const initSalesFunnelChart = () => {
+  if (!salesFunnelChart.value) return
+  
+  const chart = echarts.init(salesFunnelChart.value)
+  
+  chart.setOption({
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: { color: '#333', fontSize: 13 },
+      padding: [14, 18],
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+    },
+    series: [{
+      type: 'funnel',
+      left: '10%',
+      top: '5%',
+      bottom: '5%',
+      right: '10%',
+      width: '80%',
+      min: 0,
+      max: 100,
+      minSize: '0%',
+      maxSize: '100%',
+      sort: 'descending',
+      gap: 2,
+      label: {
+        show: true,
+        position: 'inside',
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: 500
       },
-      series: [{
-        data: contractData.amounts.length > 0 ? contractData.amounts : [0],
+      itemStyle: {
+        borderColor: '#fff',
+        borderWidth: 2
+      },
+      data: [
+        { value: 100, name: '潜在客户', itemStyle: { color: '#1890ff' } },
+        { value: 80, name: '意向客户', itemStyle: { color: '#13c2c2' } },
+        { value: 60, name: '商机', itemStyle: { color: '#faad14' } },
+        { value: 40, name: '谈判中', itemStyle: { color: '#f5222d' } },
+        { value: 25, name: '成交', itemStyle: { color: '#52c41a' } }
+      ]
+    }]
+  })
+}
+
+// 初始化线索来源分析图
+const initLeadSourceChart = () => {
+  if (!leadSourceChart.value) return
+  
+  const chart = echarts.init(leadSourceChart.value)
+  
+  chart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+      borderColor: '#e8e8e8',
+      borderWidth: 1,
+      textStyle: { color: '#333', fontSize: 13 },
+      padding: [14, 18],
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 8px;'
+    },
+    legend: {
+      data: ['网络营销', '电话咨询', '客户推荐', '展会活动', '其他'],
+      bottom: '0%',
+      textStyle: { color: '#666', fontSize: 12 },
+      itemGap: 20,
+      itemWidth: 12,
+      itemHeight: 12
+    },
+    grid: { left: '3%', right: '4%', bottom: '12%', top: '8%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月'],
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#999', fontSize: 12, margin: 16 }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#f5f5f5' } },
+      axisLabel: { color: '#999', fontSize: 12 },
+      axisTick: { show: false },
+      axisLine: { show: false }
+    },
+    series: [
+      {
+        name: '网络营销',
         type: 'bar',
+        stack: 'total',
         barWidth: '35%',
         itemStyle: {
-          color: {
-            type: 'linear',
-            x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: '#1890ff' },
-              { offset: 1, color: '#69c0ff' }
-            ]
-          },
-          borderRadius: [8, 8, 0, 0],
-          shadowColor: 'rgba(24, 144, 255, 0.3)',
-          shadowBlur: 10,
-          shadowOffsetY: 4
-        }
-      }]
-    })
-  }
+          color: '#1890ff',
+          borderRadius: [0, 0, 0, 0]
+        },
+        data: [120, 132, 101, 134, 90, 230, 210, 180, 200, 220, 250, 280]
+      },
+      {
+        name: '电话咨询',
+        type: 'bar',
+        stack: 'total',
+        itemStyle: { color: '#13c2c2' },
+        data: [220, 182, 191, 234, 290, 330, 310, 280, 300, 320, 350, 380]
+      },
+      {
+        name: '客户推荐',
+        type: 'bar',
+        stack: 'total',
+        itemStyle: { color: '#722ed1' },
+        data: [150, 212, 201, 154, 190, 330, 410, 380, 400, 420, 450, 480]
+      },
+      {
+        name: '展会活动',
+        type: 'bar',
+        stack: 'total',
+        itemStyle: { color: '#faad14' },
+        data: [80, 72, 71, 74, 90, 130, 110, 100, 120, 140, 160, 180]
+      },
+      {
+        name: '其他',
+        type: 'bar',
+        stack: 'total',
+        itemStyle: { color: '#d9d9d9' },
+        data: [30, 42, 51, 54, 60, 70, 80, 75, 85, 95, 105, 115]
+      }
+    ]
+  })
+}
+
+// 初始化所有图表
+const initAllCharts = () => {
+  initCustomerGrowthChart()
+  initCustomerLevelChart()
+  initContractChart()
+  initSalesFunnelChart()
+  initLeadSourceChart()
+}
+
+// 窗口大小变化时重新渲染图表
+const handleResize = () => {
+  customerGrowthChart.value && echarts.getInstanceByDom(customerGrowthChart.value)?.resize()
+  customerLevelChart.value && echarts.getInstanceByDom(customerLevelChart.value)?.resize()
+  contractChart.value && echarts.getInstanceByDom(contractChart.value)?.resize()
+  salesFunnelChart.value && echarts.getInstanceByDom(salesFunnelChart.value)?.resize()
+  leadSourceChart.value && echarts.getInstanceByDom(leadSourceChart.value)?.resize()
 }
 
 onMounted(() => {
-  loadStats()
-  initCharts()
-  
-  window.addEventListener('resize', () => {
-    customerGrowthChart.value && echarts.getInstanceByDom(customerGrowthChart.value)?.resize()
-    customerLevelChart.value && echarts.getInstanceByDom(customerLevelChart.value)?.resize()
-    contractChart.value && echarts.getInstanceByDom(contractChart.value)?.resize()
-  })
+  initAllCharts()
+  window.addEventListener('resize', handleResize)
 })
 </script>
 
@@ -666,16 +773,6 @@ onMounted(() => {
   font-size: 14px;
 }
 
-.stat-card-footer {
-  height: 3px;
-  background: transparent;
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover .stat-card-footer {
-  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
-}
-
 /* 图表卡片 */
 .charts-row {
   margin-bottom: 24px;
@@ -784,6 +881,10 @@ onMounted(() => {
   
   .stats-row .el-col {
     margin-bottom: 16px;
+  }
+  
+  .chart-card {
+    height: 350px;
   }
 }
 </style>

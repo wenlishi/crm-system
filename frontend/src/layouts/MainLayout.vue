@@ -1,9 +1,9 @@
 <template>
   <el-container class="layout-container">
     <!-- 侧边栏 -->
-    <el-aside :width="isCollapse ? '72px' : '240px'" class="sidebar">
+    <el-aside :width="isCollapse ? '64px' : '240px'" class="sidebar">
       <div class="logo-wrapper">
-        <div class="logo">
+        <div class="logo" :class="{ 'logo-collapse': isCollapse }">
           <div class="logo-icon">
             <el-icon><DataLine /></el-icon>
           </div>
@@ -20,7 +20,8 @@
         <el-menu-item
           v-for="route in menuRoutes"
           :key="route.path"
-          :index="'/' + route.path"
+          :index="route.redirectPath || ('/' + route.path)"
+          :to="route.redirectPath || ('/' + route.path)"
           class="menu-item"
         >
           <div class="menu-item-content">
@@ -108,8 +109,8 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
-import { ElMessageBox } from 'element-plus'
-import { DataLine, Bell, User, Setting, SwitchButton, ArrowDown, Fold, Expand } from '@element-plus/icons-vue'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { DataLine, Bell, User, Setting, SwitchButton, ArrowDown, Fold, Expand, DataAnalysis, TrendCharts, Document, Money, DocumentCopy, UserFilled, Promotion, ShoppingCart, Plus, View, Edit } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -119,7 +120,26 @@ const isCollapse = ref(false)
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 
 const menuRoutes = computed(() => {
-  return router.options.routes[1]?.children?.filter(r => !r.meta?.hidden) || []
+  const routes = router.options.routes[1]?.children || []
+  return routes.filter(r => {
+    // 跳过隐藏的 route
+    if (r.meta?.hidden) return false
+    
+    // 对于有子路由的父路由，设置 redirectPath
+    if (r.children && r.children.length > 0) {
+      // 如果 meta 中已经定义了 redirectPath，使用它
+      if (r.meta?.redirectPath) {
+        r.redirectPath = r.meta.redirectPath
+      } else {
+        // 否则使用第一个可见的子路由
+        const firstChild = r.children.find(c => !c.meta?.hidden)
+        if (firstChild) {
+          r.redirectPath = '/' + r.path + '/' + firstChild.path
+        }
+      }
+    }
+    return true
+  })
 })
 
 const activeMenu = computed(() => {
@@ -171,14 +191,20 @@ const handleCommand = async (command) => {
 }
 
 .logo-wrapper {
-  padding: 24px 20px;
+  padding: 20px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: padding 0.3s ease;
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 14px;
+  justify-content: center;
+}
+
+.logo-collapse {
+  justify-content: center;
 }
 
 .logo-icon {
@@ -190,6 +216,11 @@ const handleCommand = async (command) => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 20px rgba(64, 158, 255, 0.35);
+  transition: all 0.3s ease;
+}
+
+.logo-collapse .logo-icon {
+  margin: 0 auto;
 }
 
 .logo-icon .el-icon {
@@ -252,6 +283,7 @@ const handleCommand = async (command) => {
   align-items: center;
   gap: 14px;
   padding: 0 4px;
+  justify-content: center;
 }
 
 .menu-icon-wrapper {
@@ -264,6 +296,16 @@ const handleCommand = async (command) => {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+}
+
+/* 收起状态下的菜单样式 */
+.sidebar-menu.el-menu--collapse .menu-item-content {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-menu.el-menu--collapse .menu-icon-wrapper {
+  margin: 0 auto;
 }
 
 .menu-item:hover .menu-icon-wrapper {
@@ -295,6 +337,7 @@ const handleCommand = async (command) => {
   font-weight: 500;
   letter-spacing: 0.3px;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .menu-item:hover .menu-title {
@@ -304,6 +347,11 @@ const handleCommand = async (command) => {
 .menu-item.is-active .menu-title {
   color: #fff;
   font-weight: 600;
+}
+
+/* 收起状态下隐藏菜单标题 */
+.sidebar-menu.el-menu--collapse .menu-title {
+  display: none;
 }
 
 .menu-active-indicator {
@@ -323,10 +371,16 @@ const handleCommand = async (command) => {
   opacity: 1;
 }
 
+/* 收起状态下隐藏激活指示器 */
+.sidebar-menu.el-menu--collapse .menu-active-indicator {
+  display: none;
+}
+
 /* ========== 侧边栏底部 ========== */
 .sidebar-footer {
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  transition: padding 0.3s ease;
 }
 
 .version-info {
@@ -334,6 +388,11 @@ const handleCommand = async (command) => {
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
+}
+
+/* 收起状态下隐藏版本信息 */
+.sidebar-menu.el-menu--collapse ~ .sidebar-footer .version-info {
+  justify-content: center;
 }
 
 .version-label {
@@ -428,17 +487,26 @@ const handleCommand = async (command) => {
   transition: all 0.3s ease;
 }
 
+.action-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 6px;
+  border-radius: 10px;
+}
+
 .action-item .el-icon {
-  font-size: 20px;
+  font-size: 22px;
   color: #606266;
-  padding: 8px;
-  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
-.action-item:hover .el-icon {
+.action-item:hover {
   background: #f5f7fa;
+}
+
+.action-item:hover .el-icon {
   color: #409EFF;
+  transform: scale(1.05);
 }
 
 .divider {

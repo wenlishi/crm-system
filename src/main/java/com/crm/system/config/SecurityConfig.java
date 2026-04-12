@@ -62,7 +62,7 @@ public class SecurityConfig {
             // 配置授权规则
             .authorizeHttpRequests(auth -> auth
                 // 放行认证相关接口
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 // 放行 Swagger 文档
                 .requestMatchers("/api/swagger-ui/**", "/api/v3/api-docs/**").permitAll()
                 // 放行静态资源

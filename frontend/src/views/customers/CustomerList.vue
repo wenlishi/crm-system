@@ -1,37 +1,19 @@
 <template>
   <div class="customer-page">
-    <!-- 页面头部 -->
-    <div class="page-header">
-      <div class="header-content">
-        <div>
-          <h1 class="page-title">客户管理</h1>
-          <p class="page-subtitle">管理和维护客户关系，提升销售转化</p>
-        </div>
-        <el-button type="primary" class="add-btn" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          新增客户
-        </el-button>
-      </div>
-    </div>
-
-    <!-- 筛选区 -->
-    <div class="filter-section">
-      <el-form :inline="true" :model="searchForm" class="filter-form">
+    <!-- 筛选条件 -->
+    <el-card class="filter-card">
+      <el-form :model="searchForm" inline>
         <el-form-item label="客户名称">
           <el-input
             v-model="searchForm.customerName"
-            placeholder="搜索客户名称"
+            placeholder="请输入客户名称"
             clearable
-            class="filter-input"
-          >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-          </el-input>
+            style="width: 160px"
+          />
         </el-form-item>
         
         <el-form-item label="客户级别">
-          <el-select v-model="searchForm.level" placeholder="全部级别" clearable class="filter-select">
+          <el-select v-model="searchForm.level" placeholder="请选择" clearable style="width: 120px">
             <el-option label="A 类客户" value="A" />
             <el-option label="B 类客户" value="B" />
             <el-option label="C 类客户" value="C" />
@@ -40,92 +22,161 @@
         </el-form-item>
         
         <el-form-item label="客户状态">
-          <el-select v-model="searchForm.status" placeholder="全部状态" clearable class="filter-select">
+          <el-select v-model="searchForm.status" placeholder="请选择" clearable style="width: 120px">
             <el-option label="跟进中" :value="0" />
             <el-option label="已成交" :value="1" />
             <el-option label="已流失" :value="2" />
           </el-select>
         </el-form-item>
         
-        <el-form-item class="filter-actions">
+        <el-form-item>
           <el-button type="primary" @click="handleSearch">
-            <el-icon><Search /></el-icon>
-            搜索
+            <i class="el-icon-search"></i> 查询
           </el-button>
           <el-button @click="handleReset">
-            <el-icon><Refresh /></el-icon>
-            重置
+            <i class="el-icon-refresh"></i> 重置
           </el-button>
         </el-form-item>
       </el-form>
-    </div>
+    </el-card>
 
-    <!-- 表格区 -->
-    <div class="table-section">
-      <div class="table-toolbar">
-        <div class="toolbar-left">
-          <span class="table-count">共 <strong>{{ pagination.total }}</strong> 条记录</span>
-        </div>
-        <div class="toolbar-right">
-          <el-button @click="handleRefresh">
-            <el-icon><Refresh /></el-icon>
-            刷新
-          </el-button>
-        </div>
+    <!-- 操作按钮 -->
+    <el-card class="toolbar-card">
+      <el-button type="primary" @click="handleAdd">
+        <i class="el-icon-plus"></i> 新建客户
+      </el-button>
+      <el-button type="success" @click="handleExport" :disabled="tableData.length === 0">
+        <i class="el-icon-download"></i> 导出客户
+      </el-button>
+      <el-button type="warning" @click="handleBatchAssign" :disabled="selectedRows.length === 0">
+        <i class="el-icon-user"></i> 批量分配
+      </el-button>
+    </el-card>
+
+    <!-- 批量分配对话框 -->
+    <el-dialog
+      v-model="assignDialogVisible"
+      title="批量分配客户"
+      width="500px"
+      @close="handleAssignDialogClose"
+    >
+      <div class="assign-content">
+        <el-alert
+          title="分配须知"
+          type="warning"
+          :closable="false"
+          show-icon
+          class="mb-4"
+        >
+          <p>1. 分配后客户将归属于所选销售员</p>
+          <p>2. 原负责人将失去客户权限</p>
+          <p>3. 请谨慎选择分配对象</p>
+        </el-alert>
+
+        <el-form :model="assignForm" label-width="100px">
+          <el-form-item label="当前客户数">
+            <el-tag type="info">{{ selectedRows.length }} 个</el-tag>
+          </el-form-item>
+          <el-form-item label="分配给" required>
+            <el-select v-model="assignForm.ownerId" placeholder="请选择销售员" style="width: 100%">
+              <el-option
+                v-for="item in salesmen"
+                :key="item.userId"
+                :label="item.username"
+                :value="item.userId"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="分配说明">
+            <el-input
+              v-model="assignForm.remark"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入分配说明（可选）"
+            />
+          </el-form-item>
+        </el-form>
       </div>
 
-      <el-table
+      <template #footer>
+        <el-button @click="assignDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitAssign" :loading="assignLoading">
+          确认分配
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 客户列表 -->
+    <el-card class="table-card">
+
+      <el-table 
+        :data="tableData" 
         v-loading="loading"
-        :data="tableData"
-        class="data-table"
-        :header-cell-style="{ background: '#fafbfc', color: '#666', fontWeight: '500' }"
+        @selection-change="handleSelectionChange"
       >
-        <el-table-column prop="customerName" label="客户名称" min-width="180">
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="customerName" label="客户名称" min-width="150" />
+        <el-table-column prop="customerType" label="类型" width="80">
           <template #default="{ row }">
-            <span class="name-text">{{ row.customerName }}</span>
+            <el-tag>{{ row.customerType === 1 ? '个人' : '企业' }}</el-tag>
           </template>
         </el-table-column>
-        
-        <el-table-column prop="contact" label="联系人" width="120" />
-        
-        <el-table-column prop="phone" label="联系电话" width="140">
+        <el-table-column prop="contact" label="联系人" width="100" />
+        <el-table-column prop="phone" label="联系电话" width="130" />
+        <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip>
           <template #default="{ row }">
-            <span class="phone-text">{{ row.phone }}</span>
+            <span class="email-text">{{ row.email || '-' }}</span>
           </template>
         </el-table-column>
-        
-        <el-table-column prop="email" label="邮箱" min-width="180" />
-        
         <el-table-column prop="level" label="级别" width="100">
           <template #default="{ row }">
-            <el-tag :type="getLevelType(row.level)" size="small" effect="plain" class="level-tag">
+            <el-tag :type="getLevelType(row.level)">
               {{ row.level }}类
             </el-tag>
           </template>
         </el-table-column>
-        
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)" size="small" effect="plain" class="status-tag">
+            <el-tag :type="getStatusType(row.status)">
               {{ getStatusText(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        
-        <el-table-column prop="ownerName" label="负责人" width="120" />
-        
-        <el-table-column label="操作" width="220" fixed="right" class="action-column">
+        <el-table-column prop="ownerName" label="负责人" width="100" />
+        <el-table-column label="操作" width="260" fixed="right">
           <template #default="{ row }">
-            <div class="action-buttons">
-              <el-button link type="primary" @click="handleView(row)">详情</el-button>
-              <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-              <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
-            </div>
+            <el-button 
+              size="small" 
+              @click="handleView(row)"
+            >
+              查看
+            </el-button>
+            <el-button 
+              size="small" 
+              @click="handleEdit(row)"
+            >
+              编辑
+            </el-button>
+            <el-button 
+              size="small" 
+              type="primary" 
+              @click="handleAssign(row)"
+            >
+              分配
+            </el-button>
+            <el-button 
+              size="small" 
+              type="danger" 
+              @click="handleDelete(row)"
+            >
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <div class="table-footer" v-if="pagination.total > 0">
+      <!-- 分页 -->
+      <div class="pagination-container">
         <el-pagination
           :current-page="pagination.current"
           :page-size="pagination.size"
@@ -138,7 +189,7 @@
           @current-change="handleCurrentChange"
         />
       </div>
-    </div>
+    </el-card>
 
     <!-- 新增/编辑对话框 -->
     <el-dialog
@@ -212,9 +263,14 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, User } from '@element-plus/icons-vue'
-import { getCustomerList, createCustomer, updateCustomer, deleteCustomer } from '@/api/customer'
+import { getCustomerList, createCustomer, updateCustomer, deleteCustomer, batchAssignCustomer } from '@/api/customer'
+import { getUserList } from '@/api/user'
+import * as XLSX from 'xlsx'
+
+const router = useRouter()
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -222,6 +278,7 @@ const tableData = ref([])
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增客户')
 const customerFormRef = ref(null)
+const selectedRows = ref([])
 
 const searchForm = reactive({
   customerName: '',
@@ -316,6 +373,145 @@ const handleRefresh = () => {
   ElMessage.success('刷新成功')
 }
 
+const handleSelectionChange = (selection) => {
+  selectedRows.value = selection
+}
+
+// 分配对话框相关
+const assignDialogVisible = ref(false)
+const assignLoading = ref(false)
+const salesmen = ref([])
+const assignForm = reactive({
+  ownerId: null,
+  remark: ''
+})
+
+// 加载销售员列表
+const loadSalesmen = async () => {
+  try {
+    const res = await getUserList({ status: 1 })
+    if (res.code === 200) {
+      salesmen.value = res.data.records || []
+    }
+  } catch (error) {
+    console.error('加载销售员失败:', error)
+  }
+}
+
+// 批量分配
+const handleBatchAssign = () => {
+  if (selectedRows.value.length === 0) {
+    ElMessage.warning('请选择要分配的客户')
+    return
+  }
+  
+  assignDialogVisible.value = true
+}
+
+// 提交分配
+const submitAssign = async () => {
+  if (!assignForm.ownerId) {
+    ElMessage.warning('请选择销售员')
+    return
+  }
+  
+  assignLoading.value = true
+  try {
+    const customerIds = selectedRows.value.map(row => row.customerId)
+    const res = await batchAssignCustomer({
+      customerIds,
+      ownerId: assignForm.ownerId,
+      remark: assignForm.remark
+    })
+    
+    if (res.code === 200) {
+      ElMessage.success('分配成功')
+      assignDialogVisible.value = false
+      loadData()
+    }
+  } catch (error) {
+    console.error('分配失败:', error)
+    ElMessage.error(error.response?.data?.message || '分配失败')
+  } finally {
+    assignLoading.value = false
+  }
+}
+
+// 分配对话框关闭
+const handleAssignDialogClose = () => {
+  assignForm.ownerId = null
+  assignForm.remark = ''
+}
+
+const handleExport = async () => {
+  try {
+    // 获取所有客户数据（不分页）
+    const { data } = await getCustomerList({ 
+      current: 1, 
+      size: 10000,
+      customerName: searchForm.customerName,
+      level: searchForm.level,
+      status: searchForm.status
+    })
+    
+    const customers = data.records || []
+    
+    if (customers.length === 0) {
+      ElMessage.warning('没有可导出的数据')
+      return
+    }
+    
+    // 准备导出数据
+    const exportData = customers.map(customer => ({
+      '客户名称': customer.customerName,
+      '客户类型': customer.customerType === 1 ? '个人' : '企业',
+      '联系人': customer.contact,
+      '联系电话': customer.phone,
+      '邮箱': customer.email,
+      '客户级别': `${customer.level}类`,
+      '客户状态': getStatusText(customer.status),
+      '客户来源': customer.source || '-',
+      '负责人': customer.ownerName || '-',
+      '创建时间': customer.createTime || '-'
+    }))
+    
+    // 创建工作簿
+    const worksheet = XLSX.utils.json_to_sheet(exportData)
+    const workbook = XLSX.utils.book_new()
+    
+    // 设置列宽
+    const colWidths = [
+      { wch: 20 }, // 客户名称
+      { wch: 10 }, // 客户类型
+      { wch: 15 }, // 联系人
+      { wch: 15 }, // 联系电话
+      { wch: 25 }, // 邮箱
+      { wch: 10 }, // 客户级别
+      { wch: 10 }, // 客户状态
+      { wch: 15 }, // 客户来源
+      { wch: 15 }, // 负责人
+      { wch: 20 }  // 创建时间
+    ]
+    worksheet['!cols'] = colWidths
+    
+    // 添加工作表
+    XLSX.utils.book_append_sheet(workbook, worksheet, '客户列表')
+    
+    // 生成文件名
+    const fileName = `客户列表_${new Date().toISOString().slice(0, 10)}.xlsx`
+    
+    // 下载文件
+    XLSX.writeFile(workbook, fileName)
+    
+    ElMessage.success(`成功导出 ${customers.length} 条客户数据`)
+  } catch (error) {
+    console.error('导出失败:', error)
+    ElMessage.error('导出失败，请重试')
+  }
+}
+
+
+
 const handleAdd = () => {
   dialogTitle.value = '新增客户'
   Object.assign(customerForm, {
@@ -338,7 +534,7 @@ const handleEdit = (row) => {
 }
 
 const handleView = (row) => {
-  console.log('查看详情:', row)
+  router.push(`/customers/${row.customerId}`)
 }
 
 const handleDelete = async (row) => {
@@ -392,300 +588,56 @@ const handleCurrentChange = () => {
 
 onMounted(() => {
   loadData()
+  loadSalesmen()
 })
 </script>
 
 <style scoped>
-/* ========== 页面布局 ========== */
 .customer-page {
-  min-height: 100vh;
-  background: #f5f7fa;
-  padding: 24px;
+  padding: 20px;
 }
 
-/* ========== 页面头部 ========== */
-.page-header {
-  margin-bottom: 24px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+.filter-card {
+  margin-bottom: 20px;
 }
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.toolbar-card {
+  margin-bottom: 20px;
 }
 
-.page-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin: 0 0 6px 0;
-  letter-spacing: -0.3px;
+.table-card {
+  margin-bottom: 20px;
 }
 
-.page-subtitle {
-  font-size: 14px;
-  color: #8c8c8c;
-  margin: 0;
-}
-
-.add-btn {
-  height: 40px;
-  padding: 0 20px;
-  font-weight: 500;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-  border: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.add-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(30, 58, 95, 0.3);
-}
-
-/* ========== 筛选区 ========== */
-.filter-section {
-  margin-bottom: 24px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.filter-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.filter-input,
-.filter-select {
-  width: 240px;
-}
-
-:deep(.filter-input .el-input__wrapper),
-:deep(.filter-select .el-input__wrapper) {
-  border-radius: 8px;
-  background: #fafbfc;
-}
-
-.filter-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 12px;
-}
-
-.filter-actions .el-button--primary {
-  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-  border: none;
-  padding: 10px 20px;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.filter-actions .el-button--primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(30, 58, 95, 0.3);
-}
-
-.filter-actions .el-button--default {
-  background: #f5f7fa;
-  border-color: #e4e7ed;
-  color: #606266;
-  padding: 10px 20px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.filter-actions .el-button--default:hover {
-  background: #fff;
-  border-color: #1e3a5f;
-  color: #1e3a5f;
-}
-
-/* ========== 表格区 ========== */
-.table-section {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.table-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.toolbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.table-count {
-  font-size: 14px;
-  color: #666;
-}
-
-.table-count strong {
-  color: #1e3a5f;
-  font-weight: 600;
-}
-
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-}
-
-.data-table {
-  --el-table-border-color: #f0f0f0;
-  --el-table-header-bg-color: #fafbfc;
-  --el-table-text-color: #333;
-  --el-table-header-text-color: #666;
-  --el-table-row-hover-bg-color: #fafbfc;
-}
-
-:deep(.data-table) {
-  margin-bottom: 0;
-}
-
-:deep(.data-table .el-table__header th) {
-  font-weight: 500;
-  padding: 14px 0;
-}
-
-:deep(.data-table .el-table__row td) {
-  padding: 14px 0;
-  border-bottom-color: #f0f0f0;
-}
-
-.name-text {
-  font-weight: 500;
-  color: #1a1a1a;
-}
-
-.phone-text {
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
-  color: #666;
-}
-
-.level-tag,
-.status-tag {
-  border-radius: 6px;
-  font-weight: 500;
-  padding: 2px 10px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.action-buttons .el-button {
-  padding: 4px 0;
-  font-weight: 500;
-}
-
-.table-footer {
-  display: block !important;
-  padding: 20px 24px;
-  border-top: 1px solid #f0f0f0;
-  background: #fff;
-}
-
-.table-footer :deep(.el-pagination) {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ========== 对话框 ========== */
-.customer-dialog .el-dialog__header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.customer-dialog .el-dialog__title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.customer-dialog .el-dialog__body {
-  padding: 24px;
-}
-
-.customer-form {
-  padding-top: 8px;
-}
-
-:deep(.customer-form .el-form-item__label) {
-  font-weight: 500;
-  color: #666;
-}
-
-:deep(.customer-form .el-input__wrapper),
-:deep(.customer-form .el-select .el-input__wrapper),
-:deep(.customer-form .el-textarea__inner) {
-  border-radius: 8px;
-  background: #fafbfc;
-}
-
-.customer-dialog .el-dialog__footer {
-  padding: 16px 24px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.dialog-footer {
+.pagination-container {
+  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
 }
 
-/* ========== 响应式 ========== */
-@media (max-width: 768px) {
-  .customer-page {
-    padding: 16px;
-  }
-  
-  .page-header,
-  .filter-section,
-  .table-section {
-    border-radius: 8px;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-  }
-  
-  .add-btn {
-    width: 100%;
-  }
-  
-  .filter-form {
-    flex-direction: column;
-  }
-  
-  .filter-input,
-  .filter-select {
-    width: 100%;
-  }
-  
-  .filter-actions {
-    width: 100%;
-  }
-  
-  .filter-actions .el-button {
-    flex: 1;
-  }
+.assign-content {
+  padding: 10px 0;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+:deep(.el-alert__content) {
+  font-size: 13px;
+}
+
+:deep(.el-alert__content p) {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.email-text {
+  display: block;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #666;
 }
 </style>

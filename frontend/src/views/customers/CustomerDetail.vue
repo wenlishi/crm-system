@@ -218,7 +218,7 @@ onMounted(() => {
 
 <style scoped>
 .customer-detail {
-  padding: 0;
+  padding: 20px;
 }
 
 .detail-card {

@@ -26,6 +26,12 @@ const routes = [
         meta: { title: '客户管理', icon: 'User' }
       },
       {
+        path: 'customer-pool',
+        name: 'CustomerPool',
+        component: () => import('@/views/customers/PoolList.vue'),
+        meta: { title: '公海池', icon: 'ShoppingCart' }
+      },
+      {
         path: 'customers/:id',
         name: 'CustomerDetail',
         component: () => import('@/views/customers/CustomerDetail.vue'),
@@ -48,6 +54,38 @@ const routes = [
         name: 'Contracts',
         component: () => import('@/views/contract/ContractList.vue'),
         meta: { title: '合同管理', icon: 'DocumentCopy' }
+      },
+      {
+        path: 'leads',
+        name: 'Leads',
+        redirect: '/leads/list',
+        meta: { title: '销售线索', icon: 'Promotion', redirectPath: '/leads/list' },
+        children: [
+          {
+            path: 'list',
+            name: 'LeadList',
+            component: () => import('@/views/lead/list.vue'),
+            meta: { title: '线索列表', icon: 'ShoppingCart' }
+          },
+          {
+            path: 'create',
+            name: 'LeadCreate',
+            component: () => import('@/views/lead/create.vue'),
+            meta: { title: '创建线索', icon: 'Plus', hidden: true }
+          },
+          {
+            path: 'detail/:id',
+            name: 'LeadDetail',
+            component: () => import('@/views/lead/detail.vue'),
+            meta: { title: '线索详情', icon: 'View', hidden: true }
+          },
+          {
+            path: 'edit/:id',
+            name: 'LeadEdit',
+            component: () => import('@/views/lead/edit.vue'),
+            meta: { title: '编辑线索', icon: 'Edit', hidden: true }
+          }
+        ]
       },
       {
         path: 'users',
